@@ -48,7 +48,7 @@ def smoothMove(startPos, endPos, nowTime, totalTime, function=mySigmode):
 
 
 class anime:
-    def __init__(self, startPos, endPos, totalTime, func=mySigmode) -> None:
+    def __init__(self, startPos, endPos, totalTime, func=myCubicBezier) -> None:
         self.startPos = startPos
         self.endPos = endPos
         self.totalTime = totalTime

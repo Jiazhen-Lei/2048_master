@@ -105,7 +105,10 @@ def showNum(board_word_data, disPos):
         screen_display.blit(board_word, board_rect)  # 显示
 
 
-# def slideAnime(i,j):
+def showBlock(pos, num=0):
+    screen_display.blit(
+        block_display[0 if num == 0 else min(int(math.log(num, 2)), 12)], pos)
+    showNum(num, pos)
 
 
 def show(board):
@@ -114,34 +117,46 @@ def show(board):
     screen_display.blit(show_display[1], (0, Pixel * 2-5))
     screen_display.blit(show_display[2], (0, Pixel * 6))
 
-    slideAnimeFinish = True
+    slideList = []
 
     for i in range(size_x):
-        for j in range(size_y):  # 遍历数值块，处理滑动动画
-            # 如果不是零且lastPos不等于当前，证明需要动画
-            if board.map[i][j].num != 0 and [i, j] != board.map[i][j].lastPos:
-                board.map[i][j].addAnimate(index2pixel(
-                    board.map[i][j].lastPos), index2pixel([i, j]), 10)
-                # print('debugging', board.map[i][j].animate.move())
-                if board.map[i][j].animate.finished:  # 如果动画已经完成，lastPos改为当前位置
-                    board.map[i][j].lastPos = [i, j]
-                displayPos = board.map[i][j].animate.move()  # 根据动画获得方块所在位置
-                if board.map[i, j].moveType == 1:  # 如果是合并动画，保持合并前数字
-                    board_word_data = int(max(board.map[i][j].num/2, 2))
-                    screen_display.blit(board_word_data == 0 and block_display[0] or block_display[min(int(
-                        math.log(board_word_data, 2)), 12)], index2pixel([i, j]))
-                    showNum(board_word_data, index2pixel([i, j]))
-                else:
-                    board_word_data = int(max(board.map[i][j].num, 2))
-                    screen_display.blit(block_display[0], index2pixel([i, j]))
-            else:  # 不需要动画
-                board_word_data = board.map[i][j].num
-                displayPos = index2pixel([i, j])
+        for j in range(size_y):  # 遍历数值块，处理动画
+            screen_display.blit(
+                block_display[0], index2pixel([i, j]))  # 绘制底色（空位）
+            # 如果不是零且lastPos不等于当前，证明需要滑动动画
+            if board.map[i][j].num != 0:
+                if [i, j] != board.map[i][j].lastPos:
+                    board.map[i][j].addAnimate(index2pixel(
+                        board.map[i][j].lastPos), index2pixel([i, j]), 10)
+                    if board.map[i][j].animate.finished:  # 如果动画已经完成，lastPos改为当前位置
+                        board.map[i][j].lastPos = [i, j]
+                    displayPos = board.map[i][j].animate.move()  # 根据动画获得方块所在位置
 
-            # 显示：第一个参数是块，第二个参数是坐标，是一个三目运算相当于if else
-            screen_display.blit(board_word_data == 0 and block_display[0] or block_display[min(int(
-                math.log(board_word_data, 2)), 12)], displayPos)
-            showNum(board_word_data, displayPos)
+                    if board.map[i, j].moveType == 1:  # 如果是合并动画，会有两个方块
+                        if board.map[i][j].anotherPos != [i, j]:  # 如果两个方块都要动的话
+                            board.map[i, j].addAnotherAnimate(index2pixel(
+                                board.map[i][j].anotherPos), index2pixel([i, j]), 10)
+                            # 根据动画获得方块所在位置
+                            anotherDisplayPos = board.map[i][j].anotherAnimate.move(
+                            )
+                        else:
+                            anotherDisplayPos = index2pixel([i, j])
+                        board_word_data = int(board.map[i][j].num/2)  # 数字保持倍增前
+                        slideList.append(
+                            [anotherDisplayPos, board_word_data])
+                    else:
+                        board_word_data = int(board.map[i][j].num)  # 普通滑动动画，保持数字不变
+
+                    slideList.append([displayPos, board_word_data])
+
+                else:  # 不需要动画
+                    board_word_data = board.map[i][j].num
+                    displayPos = index2pixel([i, j])
+                    showBlock(displayPos, board_word_data)
+
+    # 最后绘制动画，防止在扫描过程中绘制动画导致的遮挡问题
+    for [pos, num] in slideList:
+        showBlock(pos, num)
 
     showScore()
     showBotton()
@@ -198,7 +213,7 @@ def play():
                     if 40 < mouse_x < 90 and 90 < mouse_y < 130:
                         print("Start Base 2048")
                         while not board.over():
-                            clock.tick(12)
+                            clock.tick(60)
                             base.start_base_2048(board, clock)
                             show(board)
                         print("游戏结束")

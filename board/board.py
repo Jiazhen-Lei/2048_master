@@ -9,7 +9,9 @@ class Block:
     def __init__(self, num, pos, moveType=0) -> None:
         self.num = num
         self.lastPos = pos
+        self.anotherPos = [-1, -1]
         self.animate = anime((0, 0), (0, 0), 1)
+        self.anotherAnimate = anime((0, 0), (0, 0), 1)
         self.moveType = moveType
 
     def addAnimate(self, startPos, endPos, totalTime, function=None):
@@ -21,7 +23,16 @@ class Block:
             else:
                 self.animate = anime(startPos, endPos, totalTime, function)
 
+    def addAnotherAnimate(self, startPos, endPos, totalTime, function=None):
+        if self.anotherAnimate.startPos == startPos and self.anotherAnimate.endPos == endPos:
+            return
+        else:
+            if function == None:
+                self.anotherAnimate = anime(startPos, endPos, totalTime)
+            else:
+                self.anotherAnimate = anime(startPos, endPos, totalTime, function)
 
+# TODO 将Broad改为任意矩形，将lineProcess归入Broad类
 def lineProcess(line):  # 处理一行
     i = 0
     changed = False
@@ -41,6 +52,7 @@ def lineProcess(line):  # 处理一行
             return line, changed
         else:
             if line[i].num == line[i+1].num:  # 如果相同则合并
+                line[i+1].anotherPos=line[i].lastPos
                 line[i] = line[i+1]
                 line[i].moveType = 1
                 line[i].num *= 2
@@ -54,7 +66,6 @@ def lineProcess(line):  # 处理一行
                 if k == i+1:
                     line[i+1] = Block(0, line[i+1].lastPos)
     return line, changed
-
 
 class Board:
     def __init__(self, size):
