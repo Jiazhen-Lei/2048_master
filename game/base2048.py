@@ -22,6 +22,3 @@ def start_base_2048(board,clock):
     elif pressed_keys[K_d] or pressed_keys[K_RIGHT]: # 右
         board.move_right()
         time.sleep(0.2)
-
-
-
