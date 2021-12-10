@@ -33,6 +33,7 @@ myColorMap = [(203, 193, 182),  # 0
               (213, 178, 38),  # 2048
               (201, 163, 35)]   # 4096
 
+
 def show(board):
     my_word_color = (106, 90, 205)
 
@@ -43,18 +44,18 @@ def show(board):
     for i in range(size_x):
         for j in range(size_y):
             # 背景颜色块
-            board_word_data = board.map[i][j]  # 遍历数值块
+            board_word_data = board.map[i][j].num  # 遍历数值块
             # TODO 这里如果块的值大于2048时会出问题
             # 显示：第一个参数是块，第二个参数是坐标，是一个三目运算相当于if else
             screen_display.blit(board_word_data == 0 and block_display[0] or block_display[int(
-                math.log(board_word_data, 2))], (Pixel * j, Pixel * (i+2)))
+                math.log(board_word_data, 2))], (Pixel*i, Pixel*(j+2)))
             # 数值显示
             if board_word_data != 0:
                 board_word = board_front.render(
                     str(board_word_data), True, my_word_color)  # 参数：内容，是否抗锯齿，颜色
                 board_rect = board_word.get_rect()  # 位置
                 board_rect.center = (
-                    Pixel*j+Pixel/2, Pixel*(i+2)+Pixel/2)  # 居中显示
+                    Pixel*i+Pixel/2, Pixel*(j+2)+Pixel/2)  # 居中显示
                 screen_display.blit(board_word, board_rect)  # 显示
     # 分数显示
     screen_display.blit(score_get_block, (Pixel * 3-20, 10))  # 显示块位置
@@ -102,6 +103,7 @@ def show(board):
 
     pygame.display.update()  # 更新显示
 
+
 pygame.init()
 
 # 主体窗口设置
@@ -131,6 +133,8 @@ designer_front = pygame.font.Font('./font/SimSun.ttf', 15)
 
 clock = pygame.time.Clock()  # 系统时间
 board = Board(SIZE)  # 实例化board对象，传递参数size = 4
+
+# board.map=[[2]*4,[0]*4,[0]*4,[0]*4]
 
 
 def play():
