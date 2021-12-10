@@ -2,12 +2,24 @@ import random
 import numpy as np
 from typing import List
 
+from animate.animate import anime
+
 
 class Block:
-    def __init__(self, num, pos) -> None:
+    def __init__(self, num, pos, moveType=0) -> None:
         self.num = num
         self.lastPos = pos
-        # self.nowPos = pos
+        self.animate = anime((0, 0), (0, 0), 1)
+        self.moveType = moveType
+
+    def addAnimate(self, startPos, endPos, totalTime, function=None):
+        if self.animate.startPos == startPos and self.animate.endPos == endPos:
+            return
+        else:
+            if function == None:
+                self.animate = anime(startPos, endPos, totalTime)
+            else:
+                self.animate = anime(startPos, endPos, totalTime, function)
 
 
 def lineProcess(line):  # 处理一行
@@ -19,6 +31,7 @@ def lineProcess(line):  # 处理一行
             for j in range(i+1, len(line)):
                 if(line[j].num != 0):
                     line[k] = line[j]
+                    line[k].moveType = 0
                     changed = True
                     line[j] = Block(0, line[j].lastPos)
                     k += 1
@@ -29,6 +42,7 @@ def lineProcess(line):  # 处理一行
         else:
             if line[i].num == line[i+1].num:  # 如果相同则合并
                 line[i] = line[i+1]
+                line[i].moveType = 1
                 line[i].num *= 2
                 changed = True
                 k = i+1
@@ -58,7 +72,7 @@ class Board:
             c = random.randint(0, self.size - 1)  # 随机产生一个纵坐标
             if self.map[r][c].num == 0:  # 判断该坐标处是否有数值，若存在表示已有数据，重新产生随机坐标
                 x = random.randint(1, 2) * 2  # 随机产生一个 2 或 4
-                self.map[r][c] = Block(x, [r, c])  # 设置该坐标为随机值
+                self.map[r][c] = Block(x, [r, c], 2)  # 设置该坐标为随机值
                 break
 
     # 向上计算

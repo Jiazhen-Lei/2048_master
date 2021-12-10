@@ -1,4 +1,6 @@
 import sys
+
+from pygame import display
 import game.base2048 as base
 # import game.tip2048 as tip
 # import game.ai2048 as ai
@@ -33,47 +35,17 @@ myColorMap = [(203, 193, 182),  # 0
               (213, 178, 38),  # 2048
               (201, 163, 35)]   # 4096
 
+my_word_color = (106, 90, 205)
 
-def show(board):
-    my_word_color = (106, 90, 205)
 
-    screen_display.blit(show_display[0], (0, 0))
-    screen_display.blit(show_display[1], (0, Pixel * 2-5))
-    screen_display.blit(show_display[2], (0, Pixel * 6))
+def index2pixel(indexPos):
+    if isinstance(indexPos, list):
+        return [indexPos[0]*Pixel, (indexPos[1]+2)*Pixel]
+    elif isinstance(indexPos, tuple):
+        return (indexPos[0]*Pixel, (indexPos[1]+2)*Pixel)
 
-    for i in range(size_x):
-        for j in range(size_y):
-            # 背景颜色块
-            board_word_data = board.map[i][j].num  # 遍历数值块
-            # TODO 这里如果块的值大于2048时会出问题
-            # 显示：第一个参数是块，第二个参数是坐标，是一个三目运算相当于if else
-            screen_display.blit(board_word_data == 0 and block_display[0] or block_display[int(
-                math.log(board_word_data, 2))], (Pixel*i, Pixel*(j+2)))
-            # 数值显示
-            if board_word_data != 0:
-                board_word = board_front.render(
-                    str(board_word_data), True, my_word_color)  # 参数：内容，是否抗锯齿，颜色
-                board_rect = board_word.get_rect()  # 位置
-                board_rect.center = (
-                    Pixel*i+Pixel/2, Pixel*(j+2)+Pixel/2)  # 居中显示
-                screen_display.blit(board_word, board_rect)  # 显示
-    # 分数显示
-    screen_display.blit(score_get_block, (Pixel * 3-20, 10))  # 显示块位置
-    if board.over() == True:  # 游戏结束
-        score_word = score_front.render('Game over', True, my_word_color)
-    else:
-        score_word = score_front.render(
-            '  Score:'+str(board.score), True, my_word_color)
-    board_word = score_word.get_rect()  # 位置
-    board_word.center = (Pixel * 3+20, Pixel/3-5)
-    screen_display.blit(score_word, board_word)  # 显示
 
-    # 2048显示
-    _2048_word = _2048_front.render('2048', True, my_word_color)
-    board_word = _2048_word.get_rect()  # 位置
-    board_word.center = (Pixel, Pixel/2)  # 居中显示
-    screen_display.blit(_2048_word, board_word)  # 显示
-
+def showBotton():
     # 虚拟按钮显示
     base_word = start_front.render('Base', True, my_word_color)
     board_word = base_word.get_rect()  # 位置
@@ -95,11 +67,85 @@ def show(board):
     board_word.center = (Pixel*3+20, Pixel+20)  # 居中显示
     screen_display.blit(newgame_word, board_word)  # 显示
 
+
+def showOhters():
+    # 2048显示
+    _2048_word = _2048_front.render('2048', True, my_word_color)
+    board_word = _2048_word.get_rect()  # 位置
+    board_word.center = (Pixel, Pixel/2)  # 居中显示
+    screen_display.blit(_2048_word, board_word)  # 显示
+
     designer_word = designer_front.render(
         ('Designer:雷佳臻 赵广宇 王琪源 蒋晓天 何旭东'), True, my_word_color)
     board_word = designer_word.get_rect()  # 位置
     board_word.center = (180, 555)  # 居中显示
     screen_display.blit(designer_word, board_word)  # 显示
+
+
+def showScore():
+    # 分数显示
+    screen_display.blit(score_get_block, (Pixel * 3-20, 10))  # 显示块位置
+    if board.over() == True:  # 游戏结束
+        score_word = score_front.render('Game over', True, my_word_color)
+    else:
+        score_word = score_front.render(
+            '  Score:'+str(board.score), True, my_word_color)
+    board_word = score_word.get_rect()  # 位置
+    board_word.center = (Pixel * 3+20, Pixel/3-5)
+    screen_display.blit(score_word, board_word)  # 显示
+
+
+def showNum(board_word_data, disPos):
+    # 数值显示
+    if board_word_data != 0:
+        board_word = board_front.render(
+            str(board_word_data), True, my_word_color)  # 参数：内容，是否抗锯齿，颜色
+        board_rect = board_word.get_rect()  # 位置
+        board_rect.center = (disPos[0]+Pixel/2, disPos[1]+Pixel/2)  # 居中显示
+        screen_display.blit(board_word, board_rect)  # 显示
+
+
+# def slideAnime(i,j):
+
+
+def show(board):
+
+    screen_display.blit(show_display[0], (0, 0))
+    screen_display.blit(show_display[1], (0, Pixel * 2-5))
+    screen_display.blit(show_display[2], (0, Pixel * 6))
+
+    slideAnimeFinish = True
+
+    for i in range(size_x):
+        for j in range(size_y):  # 遍历数值块，处理滑动动画
+            # 如果不是零且lastPos不等于当前，证明需要动画
+            if board.map[i][j].num != 0 and [i, j] != board.map[i][j].lastPos:
+                board.map[i][j].addAnimate(index2pixel(
+                    board.map[i][j].lastPos), index2pixel([i, j]), 10)
+                # print('debugging', board.map[i][j].animate.move())
+                if board.map[i][j].animate.finished:  # 如果动画已经完成，lastPos改为当前位置
+                    board.map[i][j].lastPos = [i, j]
+                displayPos = board.map[i][j].animate.move()  # 根据动画获得方块所在位置
+                if board.map[i, j].moveType == 1:  # 如果是合并动画，保持合并前数字
+                    board_word_data = int(max(board.map[i][j].num/2, 2))
+                    screen_display.blit(board_word_data == 0 and block_display[0] or block_display[min(int(
+                        math.log(board_word_data, 2)), 12)], index2pixel([i, j]))
+                    showNum(board_word_data, index2pixel([i, j]))
+                else:
+                    board_word_data = int(max(board.map[i][j].num, 2))
+                    screen_display.blit(block_display[0], index2pixel([i, j]))
+            else:  # 不需要动画
+                board_word_data = board.map[i][j].num
+                displayPos = index2pixel([i, j])
+
+            # 显示：第一个参数是块，第二个参数是坐标，是一个三目运算相当于if else
+            screen_display.blit(board_word_data == 0 and block_display[0] or block_display[min(int(
+                math.log(board_word_data, 2)), 12)], displayPos)
+            showNum(board_word_data, displayPos)
+
+    showScore()
+    showBotton()
+    showOhters()
 
     pygame.display.update()  # 更新显示
 
@@ -170,4 +216,5 @@ def play():
                         continue
 
 
-play()
+if __name__ == '__main__':
+    play()
