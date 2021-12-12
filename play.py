@@ -3,6 +3,7 @@ import math
 from pygame.locals import *
 import pygame
 import game.base2048 as base
+import game.nAI2048 as AI2048
 from pygame import display
 import sys
 from show import *
@@ -34,6 +35,7 @@ def play():
                         while not board.over():
                             clock.tick(60)
                             base.start_base_2048(board, clock)
+                            # AI2048.AI_2048(board)
                             showAll(board)
                         print("游戏结束")
                         # TODO 增加结束界面

@@ -56,3 +56,5 @@ my_2048_front = pygame.font.Font(None, PIXEL * 2 // 2)  # 2048
 designer_front = pygame.font.Font('./font/SimSun.ttf', 15)
 
 my_word_color = (106, 90, 205)
+
+animeFrame = 10

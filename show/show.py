@@ -1,3 +1,4 @@
+from numpy.core.shape_base import block
 import pygame
 import math
 from board import *
@@ -78,29 +79,33 @@ def showBlock(pos, num=0):
     showNum(num, pos)
 
 
-def slideProce(board: Board, i, j, animateList):
-    board.map[i][j].addAnimate(index2pixel(
-        board.map[i][j].lastPos), index2pixel([i, j]), 10)
-    if board.map[i][j].animate.finished:  # 如果动画已经完成，lastPos改为当前位置
-        board.map[i][j].lastPos = [i, j]
-    displayPos = board.map[i][j].animate.move()  # 根据动画获得方块所在位置
+def slideProce(thisBlock: Block, posIndex, animateList: list):
+    if thisBlock.lastPos != posIndex:  # 如果位置对不上，即有新的动画
+        thisBlock.addAnimate(index2pixel(
+            thisBlock.lastPos), index2pixel(posIndex), animeFrame)  # 则生成新的动画
+        thisBlock.lastPos = posIndex
+    displayPos = thisBlock.animate.move()  # 根据动画获得方块所在位置
 
-    if board.map[i, j].moveType == 1:  # 如果是合并动画，会有两个方块
-        if board.map[i][j].anotherPos != [i, j]:  # 如果两个方块都要动的话
-            board.map[i, j].addAnotherAnimate(index2pixel(
-                board.map[i][j].anotherPos), index2pixel([i, j]), 10)
+    if thisBlock.animeType == 2:  # 如果是合并动画，会有两个方块
+        if thisBlock.anotherPos != posIndex:  # 如果两个方块都要动的话
+
+            thisBlock.addAnotherAnimate(index2pixel(
+                thisBlock.anotherPos), index2pixel(posIndex), animeFrame)
             # 根据动画获得方块所在位置
-            anotherDisplayPos = board.map[i][j].anotherAnimate.move(
+            anotherDisplayPos = thisBlock.anotherAnimate.move(
             )
         else:
-            anotherDisplayPos = index2pixel([i, j])
-        board_word_data = int(board.map[i][j].num/2)  # 数字保持倍增前
+            anotherDisplayPos = index2pixel(posIndex)
+        board_word_data = int(thisBlock.num/2)  # 数字保持倍增前
         animateList.append(
             [anotherDisplayPos, board_word_data])
-    else:
-        board_word_data = int(board.map[i][j].num)  # 普通滑动动画，保持数字不变
+    elif thisBlock.animeType == 1:
+        board_word_data = int(thisBlock.num)  # 普通滑动动画，保持数字不变
 
     animateList.append([displayPos, board_word_data])
+
+    if thisBlock.animate.finished:  # 如果动画已经完成，lastPos改为当前位置
+        thisBlock.animeType = 0
 
 
 def showAll(board: Board):
@@ -116,8 +121,13 @@ def showAll(board: Board):
             screen_display.blit(
                 block_display[0], index2pixel([i, j]))  # 绘制底色（空位）
             if board.map[i][j].num != 0:
-                if [i, j] != list(board.map[i][j].lastPos):  # 如果不是零且lastPos不等于当前，证明需要滑动动画
-                    slideProce(board, i, j, slideList)
+                # if [i, j] != list(board.map[i][j].lastPos):
+                # 如果不是零且lastPos不等于当前，证明需要滑动动画
+                if board.map[i][j].animeType == 1 or board.map[i][j].animeType == 2:
+                    slideProce(board.map[i][j], [i, j], slideList)
+                # else:
+                #     print('!debug!', board.map[i][j].animeType)
+                #     print('!debug!', board.map[i][j].lastPos, [i, j])
                 else:  # 不需要动画
                     board_word_data = board.map[i][j].num
                     displayPos = index2pixel([i, j])
@@ -132,3 +142,5 @@ def showAll(board: Board):
     showOhters()
 
     pygame.display.update()  # 更新显示
+
+    return len(slideList)

@@ -1,5 +1,6 @@
 import numbers
 import numpy as np
+from pygame.math import enable_swizzling
 
 
 def newton(f, x=0.5, target=0, max=100, err=0.0001):
@@ -53,7 +54,10 @@ class anime:
         self.endPos = endPos
         self.totalTime = totalTime
         self.func = func
-        self.finished = False
+        if totalTime ==0:
+            self.finished = True
+        else:
+            self.finished = False
         self.nowTime = 0
 
     def PosNow(self, nowTime):
