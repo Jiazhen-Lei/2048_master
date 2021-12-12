@@ -2,6 +2,8 @@ import random
 import numpy as np
 from typing import List
 
+from pygame import font
+
 from animate.animate import anime
 
 
@@ -30,9 +32,12 @@ class Block:
             if function == None:
                 self.anotherAnimate = anime(startPos, endPos, totalTime)
             else:
-                self.anotherAnimate = anime(startPos, endPos, totalTime, function)
+                self.anotherAnimate = anime(
+                    startPos, endPos, totalTime, function)
 
 # TODO 将Broad改为任意矩形，将lineProcess归入Broad类
+
+
 def lineProcess(line):  # 处理一行
     i = 0
     changed = False
@@ -52,7 +57,7 @@ def lineProcess(line):  # 处理一行
             return line, changed
         else:
             if line[i].num == line[i+1].num:  # 如果相同则合并
-                line[i+1].anotherPos=line[i].lastPos
+                line[i+1].anotherPos = line[i].lastPos
                 line[i] = line[i+1]
                 line[i].moveType = 1
                 line[i].num *= 2
@@ -67,16 +72,30 @@ def lineProcess(line):  # 处理一行
                     line[i+1] = Block(0, line[i+1].lastPos)
     return line, changed
 
+
 class Board:
-    def __init__(self, size):
+    def __init__(self, size, map=None):
         self.size = size
         self.score = 0
-        self.map = np.array([[Block(0, [i, j])
-                            for i in range(size)] for j in range(size)])
+        self.debug = False
+        if map != None:
+            for i in range(size):
+                for j in range(size):
+                    self.map[i][j] = Block(map[i][j].num, [i, j])
+        else:
+            self.map = np.array([[Block(0, [i, j])
+                                  for i in range(size)] for j in range(size)])
         self.add()  # 随机产生第一个随机数
         self.add()  # 随机产生第二个随机数
-    # 新增2或4，有1/4概率产生4
 
+    def mapPrint(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                print(self.map[j][i].num, end=' || ')
+            print()
+        print()
+
+    # 新增2或4，有1/4概率产生4
     def add(self):
         while True:
             r = random.randint(0, self.size - 1)  # 随机产生一个横坐标
@@ -86,8 +105,14 @@ class Board:
                 self.map[r][c] = Block(x, [r, c], 2)  # 设置该坐标为随机值
                 break
 
-    # 向上计算
+    def add_xy(self, x, y, val):
+        if self.map[x][y].num == 0:
+            self.map[x][y] = Block(val, [x, y], 2)
+            return True
+        else:
+            return False
 
+    # 向上计算
     def move_up(self):
         changed = False
         newLines = []
@@ -102,9 +127,11 @@ class Board:
                 newMap = np.vstack((newMap, newLines[i]))
             self.map = newMap
             self.add()  # 添加一个新数
+        if self.debug:
+            self.mapPrint()
         return self
-    # 向下计算
 
+    # 向下计算
     def move_down(self):
         changed = False
         newLines = []
@@ -119,10 +146,11 @@ class Board:
                 newMap = np.vstack((newMap, newLines[i][::-1]))
             self.map = newMap
             self.add()  # 添加一个新数
+        if self.debug:
+            self.mapPrint()
         return self
 
     # 向左计算
-
     def move_left(self):
         changed = False
         newLines = []
@@ -138,9 +166,11 @@ class Board:
                 newMap = np.hstack((newMap, np.transpose([newLines[i]])))
             self.map = newMap
             self.add()  # 添加一个新数
+        if self.debug:
+            self.mapPrint()
         return self
-    # 向右计算
 
+    # 向右计算
     def move_right(self):
         changed = False
         newLines = []
@@ -156,10 +186,11 @@ class Board:
                 newMap = np.hstack((newMap, np.transpose([newLines[i][::-1]])))
             self.map = newMap
             self.add()  # 添加一个新数
+        if self.debug:
+            self.mapPrint()
         return self
 
     # 判断游戏结束
-
     def over(self):
         # 判断数值矩阵中是否有零
         for r in range(self.size):
