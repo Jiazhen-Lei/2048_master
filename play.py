@@ -111,6 +111,31 @@ def showBlock(pos, num=0):
     showNum(num, pos)
 
 
+def slideProce(board, i, j, animateList):
+    board.map[i][j].addAnimate(index2pixel(
+        board.map[i][j].lastPos), index2pixel([i, j]), 10)
+    if board.map[i][j].animate.finished:  # 如果动画已经完成，lastPos改为当前位置
+        board.map[i][j].lastPos = [i, j]
+    displayPos = board.map[i][j].animate.move()  # 根据动画获得方块所在位置
+
+    if board.map[i, j].moveType == 1:  # 如果是合并动画，会有两个方块
+        if board.map[i][j].anotherPos != [i, j]:  # 如果两个方块都要动的话
+            board.map[i, j].addAnotherAnimate(index2pixel(
+                board.map[i][j].anotherPos), index2pixel([i, j]), 10)
+            # 根据动画获得方块所在位置
+            anotherDisplayPos = board.map[i][j].anotherAnimate.move(
+            )
+        else:
+            anotherDisplayPos = index2pixel([i, j])
+        board_word_data = int(board.map[i][j].num/2)  # 数字保持倍增前
+        animateList.append(
+            [anotherDisplayPos, board_word_data])
+    else:
+        board_word_data = int(board.map[i][j].num)  # 普通滑动动画，保持数字不变
+
+    animateList.append([displayPos, board_word_data])
+
+
 def show(board):
 
     screen_display.blit(show_display[0], (0, 0))
@@ -123,32 +148,9 @@ def show(board):
         for j in range(size_y):  # 遍历数值块，处理动画
             screen_display.blit(
                 block_display[0], index2pixel([i, j]))  # 绘制底色（空位）
-            # 如果不是零且lastPos不等于当前，证明需要滑动动画
             if board.map[i][j].num != 0:
-                if [i, j] != board.map[i][j].lastPos:
-                    board.map[i][j].addAnimate(index2pixel(
-                        board.map[i][j].lastPos), index2pixel([i, j]), 10)
-                    if board.map[i][j].animate.finished:  # 如果动画已经完成，lastPos改为当前位置
-                        board.map[i][j].lastPos = [i, j]
-                    displayPos = board.map[i][j].animate.move()  # 根据动画获得方块所在位置
-
-                    if board.map[i, j].moveType == 1:  # 如果是合并动画，会有两个方块
-                        if board.map[i][j].anotherPos != [i, j]:  # 如果两个方块都要动的话
-                            board.map[i, j].addAnotherAnimate(index2pixel(
-                                board.map[i][j].anotherPos), index2pixel([i, j]), 10)
-                            # 根据动画获得方块所在位置
-                            anotherDisplayPos = board.map[i][j].anotherAnimate.move(
-                            )
-                        else:
-                            anotherDisplayPos = index2pixel([i, j])
-                        board_word_data = int(board.map[i][j].num/2)  # 数字保持倍增前
-                        slideList.append(
-                            [anotherDisplayPos, board_word_data])
-                    else:
-                        board_word_data = int(board.map[i][j].num)  # 普通滑动动画，保持数字不变
-
-                    slideList.append([displayPos, board_word_data])
-
+                if [i, j] != board.map[i][j].lastPos:  # 如果不是零且lastPos不等于当前，证明需要滑动动画
+                    slideProce(board, i, j, slideList)
                 else:  # 不需要动画
                     board_word_data = board.map[i][j].num
                     displayPos = index2pixel([i, j])
