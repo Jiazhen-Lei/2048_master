@@ -1,4 +1,5 @@
 import game.val as val
+import pygame
 from board import *
 
 search_step = 3
@@ -79,25 +80,35 @@ def dfs(board, now_step, limit_step):
     return best_move, best_val, can_move
 
 
-def AI_2048(board):
-    now = board
-    operation, best_val, can_move = dfs(now, 0, search_step)
-    print('operation=', operation, 'best_val=', best_val)
-    print(can_move)
-    if operation == 0:
-        board.move_up()
-        if(board.changed):
-            board.add()  # 添加一个新数
-    elif operation == 1:
-        board.move_down()
-        if(board.changed):
-            board.add()  # 添加一个新数
-    elif operation == 2:
-        board.move_left()
-        if(board.changed):
-            board.add()  # 添加一个新数
-    elif operation == 3:
-        board.move_right()
-        if(board.changed):
-            board.add()  # 添加一个新数
-        # time.sleep(0.1)
+lastTime = pygame.time.get_ticks()
+
+
+def AI_2048(board, gap=50):
+    global lastTime
+    if pygame.time.get_ticks() - lastTime > gap:
+        lastTime = pygame.time.get_ticks()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()  # 直接退出
+
+        now = board
+        operation, best_val, can_move = dfs(now, 0, search_step)
+        print('operation=', operation, 'best_val=', best_val)
+        print(can_move)
+        if operation == 0:
+            board.move_up()
+            if(board.changed):
+                board.add()  # 添加一个新数
+        elif operation == 1:
+            board.move_down()
+            if(board.changed):
+                board.add()  # 添加一个新数
+        elif operation == 2:
+            board.move_left()
+            if(board.changed):
+                board.add()  # 添加一个新数
+        elif operation == 3:
+            board.move_right()
+            if(board.changed):
+                board.add()  # 添加一个新数
+            # time.sleep(0.1)

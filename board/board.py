@@ -1,7 +1,6 @@
 import random
-from sys import flags
+
 import numpy as np
-from typing import List
 
 from pygame import font
 
@@ -81,7 +80,7 @@ class Board:
     def __init__(self, size, map=None):
         self.size = size
         self.score = 0
-        self.debug = True
+        self.debug = False
         self.changed = False
         self.map = np.array([[Block(0, [i, j])
                               for i in range(size)] for j in range(size)], dtype=Block)
@@ -112,16 +111,20 @@ class Board:
     def add(self):
         if self.debug:
             print(self.numMap())
-        if self.over():
-            return False
+        tempList = []
+        # 判断数值矩阵中是否有零
+        for r in range(self.size):
+            for c in range(self.size):
+                if self.map[r][c].num == 0:
+                    tempList.append([r, c])
+
+        if len(tempList) > 0:
+            [r, c] = random.choice(tempList)
+            x = random.choice([2, 2, 2, 4])  # 随机产生一个 2 或 4
+            self.map[r][c] = Block(x, [r, c], 3)  # 设置该坐标为随机值
+            return True
         else:
-            while True:
-                r = random.randint(0, self.size - 1)  # 随机产生一个横坐标
-                c = random.randint(0, self.size - 1)  # 随机产生一个纵坐标
-                if self.map[r][c].num == 0:  # 判断该坐标处是否有数值，若存在表示已有数据，重新产生随机坐标
-                    x = random.randint(1, 2) * 2  # 随机产生一个 2 或 4
-                    self.map[r][c] = Block(x, [r, c], 3)  # 设置该坐标为随机值
-                    return True
+            return False
 
     def add_xy(self, x, y, val):
         if self.map[x][y].num == 0:
