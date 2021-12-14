@@ -30,12 +30,12 @@ def play():
                     pos = pygame.mouse.get_pos()
                     mouse_x = pos[0]  # x坐标
                     mouse_y = pos[1]  # y坐标
-                    if 40 < mouse_x < 90 and 90 < mouse_y < 130:
+                    if 20 < mouse_x < 90 and 90 < mouse_y < 130:
                         print("Start Base 2048")
                         while not board.over():
                             clock.tick(60)
-                            # base.start_base_2048(board, clock)
-                            AI2048.AI_2048(board, 50)
+                            base.start_base_2048(board, clock)
+                            #AI2048.AI_2048(board, 50)
                             showAll(board)
                         print("游戏结束")
                         # TODO 增加结束界面
@@ -44,8 +44,17 @@ def play():
                         break
                     elif 220 < mouse_x < 320 and 380 < mouse_y < 440:
                         print("Start Tip 2048")
-                    elif 220 < mouse_x < 320 and 380 < mouse_y < 440:
+                    elif 180 < mouse_x < 230 and 90 < mouse_y < 130:
                         print("Start AI 2048")
+                        while not board.over():
+                            clock.tick(60)
+                            AI2048.AI_2048(board, 50)
+                            showAll(board)
+                        print("游戏结束")
+                        # TODO 增加结束界面
+                        pygame.quit()
+                        pygame.time.delay(2000)
+                        break
                     elif 220 < mouse_x < 320 and 380 < mouse_y < 440:
                         print("Please choose your new mode")
                     else:
