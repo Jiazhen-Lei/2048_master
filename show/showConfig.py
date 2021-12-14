@@ -26,6 +26,11 @@ myColorMap = [(203, 193, 182),  # 0
               (213, 178, 38),  # 2048
               (201, 163, 35)]   # 4096
 
+tipWordMap = [('Tip:'), #空
+              ('Tip:UP'),  # 向上
+              ('Tip:DOWN'), # 向下
+              ('Tip:LEFT'), # 向左
+              ('Tip:RIGHT')] # 向右
 
 # 棋盘颜色设置
 # 13个Suface实例块，略小于单元块大小，剩余的部分通过背景色实现边框填充
@@ -54,6 +59,7 @@ board_front = pygame.font.Font(None, PIXEL * 2 // 3)  # 数值矩阵数值
 score_front = pygame.font.Font(None, PIXEL * 2 // 8)  # 得分
 my_2048_front = pygame.font.Font(None, PIXEL * 2 // 2)  # 2048
 designer_front = pygame.font.Font('./font/SimSun.ttf', 15)
+tip_front = pygame.font.Font(None, 25) #tip
 
 my_word_color = (106, 90, 205)
 

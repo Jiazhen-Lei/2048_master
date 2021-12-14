@@ -34,3 +34,4 @@ def start_base_2048(board: Board, clock):
                 if(board.changed):
                     board.add()  # 添加一个新数
                 # time.sleep(0.2)
+    

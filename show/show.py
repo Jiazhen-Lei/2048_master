@@ -62,6 +62,14 @@ def showScore(board: Board):
     board_word.center = (Pixel * 3+20, Pixel/3-5)
     screen_display.blit(score_word, board_word)  # 显示
 
+def showTip(operation):
+    
+    tip_word = tip_front.render(
+        tipWordMap[operation], True, my_word_color)
+    board_word = tip_word.get_rect()  # 位置
+    board_word.center = (180, 150)  # 居中显示
+    screen_display.blit(tip_word, board_word)  # 显示
+
 
 def showNum(board_word_data, disPos):
     # 数值显示
@@ -108,7 +116,7 @@ def slideProce(thisBlock: Block, posIndex, animateList: list):
         thisBlock.animeType = 0
 
 
-def showAll(board: Board):
+def showAll(board: Board,operation = 0):
 
     screen_display.blit(show_display[0], (0, 0))
     screen_display.blit(show_display[1], (0, Pixel * 2-5))
@@ -140,6 +148,7 @@ def showAll(board: Board):
     showScore(board)
     showBotton()
     showOhters()
+    showTip(operation)
 
     pygame.display.update()  # 更新显示
 
