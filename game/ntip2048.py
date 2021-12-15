@@ -30,29 +30,36 @@ def tip_2048(board: Board, tip):
                 if(board.changed):
                     board.add()  # 添加一个新数
                     tip = get_tip(board, 50)
-                    return tip
                 # time.sleep(0.2)
             elif event.key == K_s or event.key == K_DOWN:  # 下
                 board.move_down()
                 if(board.changed):
                     board.add()  # 添加一个新数
                     tip = get_tip(board, 50)
-                    return tip
                 # time.sleep(0.2)
             elif event.key == K_a or event.key == K_LEFT:  # 左
                 board.move_left()
                 if(board.changed):
                     board.add()  # 添加一个新数
                     tip = get_tip(board, 50)
-                    return tip
                 # time.sleep(0.2)
             elif event.key == K_d or event.key == K_RIGHT:  # 右
                 board.move_right()
                 if(board.changed):
                     board.add()  # 添加一个新数
                     tip = get_tip(board, 50)
-                    return tip
                 # time.sleep(0.2)
-
-    return tip
+        elif MOUSEBUTTONDOWN == event.type:
+            pressed_array = pygame.mouse.get_pressed()
+            if pressed_array[0] == 1:
+                pos = pygame.mouse.get_pos()
+                mouse_x = pos[0]  # x坐标
+                mouse_y = pos[1]  # y坐标
+                if 250 < mouse_x < 320 and 90 < mouse_y < 130:
+                    print("Please choose your new mode")
+                    board.__init__(SIZE)
+                    showAll(board)
+                    return tip, True
+    
+    return tip, False
             

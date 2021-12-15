@@ -1,6 +1,8 @@
 import game.val as val
 import pygame
 from board import *
+from pygame.locals import *
+from show import *
 
 search_step = 3
 size_x = size_y = SIZE = 4
@@ -21,23 +23,6 @@ def worst_val(map):
                 if now_val < worst:
                     worst, ansx, ansy, ansk = now_val, i, j, k*2
                 new[i][j] = 0
-    '''
-    num=0
-    sum_val=0
-    for i in range(size_x):
-        for j in range(size_y):
-            for k in range(1,3):
-                if new[i][j]>0:
-                    continue
-                new[i][j]=k*2
-                now_val = val.evaluation(new)
-                if now_val<worst:
-                    worst,ansx,ansy,ansk = now_val,i,j,k*2
-                sum_val+=now_val
-                num+=1
-                new[i][j] = 0
-    worst=sum_val/num
-    '''
 
     return worst, ansx, ansy, ansk
 
@@ -90,6 +75,17 @@ def AI_2048(board, gap=50):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # 直接退出
+            elif MOUSEBUTTONDOWN == event.type:
+                pressed_array = pygame.mouse.get_pressed()
+                if pressed_array[0] == 1:
+                    pos = pygame.mouse.get_pos()
+                    mouse_x = pos[0]  # x坐标
+                    mouse_y = pos[1]  # y坐标
+                    if 250 < mouse_x < 320 and 90 < mouse_y < 130:
+                        print("Please choose your new mode")
+                        board.__init__(SIZE)
+                        showAll(board)
+                        return True # 需要重启
 
         now = board
         operation, best_val, can_move = dfs(now, 0, search_step)
@@ -112,3 +108,4 @@ def AI_2048(board, gap=50):
             if(board.changed):
                 board.add()  # 添加一个新数
             # time.sleep(0.1)
+        return False # 不需要重启

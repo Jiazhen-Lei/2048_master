@@ -90,7 +90,7 @@ class Board:
                     self.map[i][j] = Block(map[i][j].num, [i, j])
         self.add()  # 随机产生第一个随机数
         self.add()  # 随机产生第二个随机数
-
+    
     def numMap(self):
         return [[self.map[i, j].num for j in range(self.size)] for i in range(self.size)]
 
