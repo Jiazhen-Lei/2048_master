@@ -52,8 +52,15 @@ show_display[2].fill((250, 248, 239))  # 给背景填充颜色，乳白
 score_get_block = pygame.Surface((Pixel+10, 30))  # 得分实例
 score_get_block.fill((189, 177, 166))  # 填充颜色
 
-# 字体设置，字体及大小
+# 按钮部件设置
+button_block = pygame.Surface((70,40))
+button_block.fill((250, 248, 239)) 
+button_up_block = pygame.Surface((70,40))
+button_up_block.fill((238, 225, 201))
+button_down_block = pygame.Surface((64,34))
+button_down_block.fill((189, 177, 166))
 
+# 字体设置，字体及大小
 start_front = pygame.font.Font(None, PIXEL * 2 // 6)  # 按钮
 board_front = pygame.font.Font(None, PIXEL * 2 // 3)  # 数值矩阵数值
 score_front = pygame.font.Font(None, PIXEL * 2 // 8)  # 得分

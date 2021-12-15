@@ -8,7 +8,8 @@ import game.nAI2048 as AI2048
 import game.ntip2048 as tip2048
 from pygame import display
 import sys
-from show import *
+from show.show import *
+from show.showConfig import *
 import time
 import random
 
@@ -28,63 +29,80 @@ def play():
                 pygame.quit()
             if MOUSEBUTTONDOWN == event.type:
                 pressed_array = pygame.mouse.get_pressed()
-                if pressed_array[0] == 1:
+                if pressed_array[0] == 1: # 左键被按下
                     pos = pygame.mouse.get_pos()
                     mouse_x = pos[0]  # x坐标
                     mouse_y = pos[1]  # y坐标
-                    if 20 < mouse_x < 90 and 90 < mouse_y < 130:
-                        print("Start Base 2048")
-                        while not board.over():
-                            clock.tick(60)
-                            GameState = base.start_base_2048(board, clock)
-                            showAll(board)
-                            if GameState:
-                                break
-                        print("游戏结束")
-                        # TODO 增加结束界面
-                        if not GameState:
-                            pygame.quit()
-                            pygame.time.delay(2000)
-                            break
-                    elif 110 < mouse_x < 150 and 90 < mouse_y < 130:
-                        print("Start Tip 2048")
-                        tip = 0 # 初始化为空
-                        while not board.over():
-                            clock.tick(60)
-                            tip, GameState = tip2048.tip_2048(board,tip)
-                            showAll(board, tip)
-                            if GameState:
-                                tip = 0
-                                showAll(board, tip)
-                                break
-                        print("游戏结束")
-                        # TODO 增加结束界面
-                        if not GameState:
-                            pygame.quit()
-                            pygame.time.delay(2000)
-                            break
+                    if 10 < mouse_x < 80 and 90 < mouse_y < 130:
+                        showBotton(1)
+                        pygame.display.update()
+                    elif 100 < mouse_x < 170 and 90 < mouse_y < 130:
+                        showBotton(2)
+                        pygame.display.update()
+                    elif 190 < mouse_x < 260 and 90 < mouse_y < 130:
+                        showBotton(3)
+                        pygame.display.update()
+                    elif 280 < mouse_x < 350 and 90 < mouse_y < 130:
+                        showBotton(4)
+                        pygame.display.update()
 
-                    elif 180 < mouse_x < 230 and 90 < mouse_y < 130:
-                        print("Start AI 2048")
-                        while not board.over():
-                            clock.tick(60)
-                            GameState = AI2048.AI_2048(board, 1000) #第二个参数调整AI快慢
-                            showAll(board)
-                            if GameState:
-                                break
-                        print("游戏结束")
-                        # TODO 增加结束界面
-                        if not GameState:
-                            pygame.quit()
-                            pygame.time.delay(2000)
-                            break
 
-                    elif 250 < mouse_x < 320 and 90 < mouse_y < 130:
-                        print("Please choose your new mode")
-                        board.__init__(SIZE)
+            if MOUSEBUTTONUP == event.type:
+                pos = pygame.mouse.get_pos()
+                mouse_x = pos[0]  # x坐标
+                mouse_y = pos[1]  # y坐标
+                if 10 < mouse_x < 80 and 90 < mouse_y < 130:
+                    print("Start Base 2048")
+                    while not board.over():
+                        clock.tick(60)
+                        GameState = base.start_base_2048(board, clock)
                         showAll(board)
-                    else:
-                        continue
+                        if GameState:
+                            break
+                    print("游戏结束")
+                    # TODO 增加结束界面
+                    if not GameState:
+                        pygame.quit()
+                        pygame.time.delay(2000)
+                        break
+                elif 100 < mouse_x < 170 and 90 < mouse_y < 130:
+                    print("Start Tip 2048")
+                    tip = 0 # 初始化为空
+                    while not board.over():
+                        clock.tick(60)
+                        tip, GameState = tip2048.tip_2048(board,tip)
+                        showAll(board, tip)
+                        if GameState:
+                            tip = 0
+                            showAll(board, tip)
+                            break
+                    print("游戏结束")
+                    # TODO 增加结束界面
+                    if not GameState:
+                        pygame.quit()
+                        pygame.time.delay(2000)
+                        break
+
+                elif 190 < mouse_x < 260 and 90 < mouse_y < 130:
+                    print("Start AI 2048")
+                    while not board.over():
+                        clock.tick(60)
+                        GameState = AI2048.AI_2048(board, 1000) #第二个参数调整AI快慢
+                        showAll(board)
+                        if GameState:
+                            break
+                    print("游戏结束")
+                    # TODO 增加结束界面
+                    if not GameState:
+                        pygame.quit()
+                        pygame.time.delay(2000)
+                        break
+                elif 280 < mouse_x < 350 and 90 < mouse_y < 130:
+                    print("Please choose your new mode")
+                    board.__init__(SIZE)
+                    showAll(board)
+                else:
+                    continue
 
 if __name__ == '__main__':
     play()
