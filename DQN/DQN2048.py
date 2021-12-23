@@ -1,4 +1,5 @@
 import pickle
+
 from interface import myStep
 from board import Board
 import torch                                    # 导入torch
@@ -7,6 +8,7 @@ import torch.nn.functional as F                 # 导入torch.nn.functional
 import numpy as np                              # 导入numpy
 import sys
 import os
+import random
 import time
 from torch.utils.tensorboard import SummaryWriter
 
@@ -83,7 +85,7 @@ class DQN(object):
         # for storing memory
         self.memory_counter = 0
         # 初始化记忆库，一行代表一个transition
-        self.memory = np.zeros((MEMORY_CAPACITY, N_STATES * 2 + 2))
+        self.memory = [0]*MEMORY_CAPACITY
         self.optimizer = torch.optim.Adam(
             self.eval_net.parameters(), lr=LR)    # 使用Adam优化器 (输入为评估网络的参数和学习率)
         # 使用均方损失函数 (loss(xi, yi)=(xi-yi)^2)
@@ -111,12 +113,12 @@ class DQN(object):
     # 定义记忆存储函数 (这里输入为一个transition)
     def store_transition(self, s, a, r, s_):
         # 在水平方向上拼接数组
-        transition = np.hstack((s, [a, r], s_))
+        transition = [s, [a, r], s_]
         # 如果记忆库满了，便覆盖旧的数据
         # 获取transition要置入的行数
         index = self.memory_counter % MEMORY_CAPACITY
         # 置入transition
-        self.memory[index, :] = transition
+        self.memory[index] = transition
         # memory_counter自加1
         self.memory_counter += 1
 
@@ -132,19 +134,23 @@ class DQN(object):
         # 在[0, 2000)内随机抽取32个数，可能会重复
         sample_index = np.random.choice(MEMORY_CAPACITY, BATCH_SIZE)
         # 抽取32个索引对应的32个transition，存入b_memory
-        b_memory = self.memory[sample_index, :]
-        b_s = torch.FloatTensor(b_memory[:, :N_STATES]).to(self.device)
+        # b_memory = self.memory[sample_index]
+        b_memory = random.choices(self.memory, k=BATCH_SIZE)
+        b_s = torch.FloatTensor([b_memory[i][0]
+                                for i in range(len(b_memory))]).to(self.device)
         # 将32个s抽出，转为32-bit floating point形式，并存储到b_s中，b_s为32行4列
-        b_a = torch.LongTensor(
-            b_memory[:, N_STATES:N_STATES+1].astype(int)).to(self.device)
+        b_a = torch.LongTensor([[int(b_memory[i][1][0])]
+                               for i in range(len(b_memory))]).to(self.device)
         # 将32个a抽出，转为64-bit integer (signed)形式，并存储到b_a中 (之所以为LongTensor类型，是为了方便后面torch.gather的使用)，b_a为32行1列
-        b_r = torch.FloatTensor(
-            b_memory[:, N_STATES+1:N_STATES+2]).to(self.device)
+        b_r = torch.FloatTensor([[int(b_memory[i][1][1])]
+                                for i in range(len(b_memory))]).to(self.device)
         # 将32个r抽出，转为32-bit floating point形式，并存储到b_s中，b_r为32行1列
-        b_s_ = torch.FloatTensor(b_memory[:, -N_STATES:]).to(self.device)
+        b_s_ = torch.FloatTensor([b_memory[i][2]
+                                 for i in range(len(b_memory))]).to(self.device)
         # 将32个s_抽出，转为32-bit floating point形式，并存储到b_s中，b_s_为32行4列
-
         # 获取32个transition的评估值和目标值，并利用损失函数和优化器进行评估网络参数更新
+
+        print(self.eval_net(b_s).shape)
         q_eval = self.eval_net(b_s).gather(1, b_a)
         # eval_net(b_s)通过评估网络输出32行每个b_s对应的一系列动作值，然后.gather(1, b_a)代表对每行对应索引b_a的Q值提取进行聚合
         q_next = self.target_net(b_s_).detach()
@@ -225,5 +231,6 @@ if __name__ == '__main__':
                       (i, round(episode_reward_sum, 2)))
 
                 dqn.logWriter.add_scalar('score', env.score, i)
-                dqn.logWriter.add_scalar('episode_reward_sum', episode_reward_sum, i)
+                dqn.logWriter.add_scalar(
+                    'episode_reward_sum', episode_reward_sum, i)
                 break                                             # 该episode结束
