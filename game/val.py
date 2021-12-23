@@ -13,10 +13,10 @@ def evaluation(map, score=0):
     # maxWeight = 1  # 0.01
     # disWeight = 0.5
     smoothWeight = 0.5  # 0.5
-    mono2Weight = 1  # 0.03
+    mono2Weight = 0  # 0.03
     emptyWeight = 5  # 2.7
     maxWeight = 1  # 0.01
-    disWeight = 0.01
+    disWeight = 0.05
 
     result = [disWeight*dis_weight(map), smoothWeight * smothness(map), mono2Weight *
               monotonicity(map), emptyWeight*empty_num(map), maxWeight*max_num(map), score]

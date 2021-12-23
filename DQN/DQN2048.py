@@ -43,12 +43,12 @@ nn.Module是nn中十分重要的类，包含网络各层的定义及forward方�
 
 
 # 定义Net类 (定义网络)
-class Net(nn.Module):
+class FCNet(nn.Module):
     # 定义Net的一系列属性
     def __init__(self):
         # nn.Module的子类函数必须在构造函数中执行父类的构造函数
         # 等价与nn.Module.__init__()
-        super(Net, self).__init__()
+        super(FCNet, self).__init__()
 
         # 设置第一个全连接层(输入层到隐藏层): 状态数个神经元到50个神经元
         self.fc1 = nn.Linear(N_STATES, 64)
@@ -73,13 +73,48 @@ class Net(nn.Module):
         return actions_value                                                    # 返回动作值
 
 
+class CNN_Net(nn.Module):
+    def __init__(self, input_len, output_num, conv_size=(32, 64), fc_size=(1024, 128), out_softmax=False):
+        super(CNN_Net, self).__init__()
+        self.input_len = input_len
+        self.output_num = output_num
+        self.out_softmax = out_softmax
+
+        self.conv1 = nn.Conv2d(
+            in_channels=1, out_channels=conv_size[0], kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(
+            in_channels=conv_size[0], out_channels=conv_size[1], kernel_size=3, stride=1, padding=1)
+
+        self.fc1 = nn.Linear(conv_size[1] * self.input_len, fc_size[0])
+        self.fc2 = nn.Linear(fc_size[0], fc_size[1])
+        self.head = nn.Linear(fc_size[1], self.output_num)
+
+    def forward(self, x):
+        # x = x.reshape(-1, 1, self.input_len, self.input_len)
+
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+
+        output = self.head(x)
+        if self.out_softmax:
+            output = F.softmax(output, dim=1)  # 值函数估计不应该有softmax
+        return output
+
 # 定义DQN类 (定义两个网络)
+
+
 class DQN(object):
     # 定义DQN的一系列属性
     def __init__(self, device=torch.device('cpu'), logPath='./'):
         self.device = device
         # 利用Net创建两个神经网络: 评估网络和目标网络
-        self.eval_net, self.target_net = Net().to(self.device), Net().to(self.device)
+        # self.eval_net, self.target_net = FCNet().to(self.device), FCNet().to(self.device)
+        self.eval_net, self.target_net = CNN_Net(N_STATES, N_ACTIONS).to(
+            self.device), CNN_Net(N_STATES, N_ACTIONS).to(self.device)
         # for target updating
         self.learn_step_counter = 0
         # for storing memory
@@ -95,6 +130,7 @@ class DQN(object):
     # 定义动作选择函数 (x为状态)
     def choose_action(self, x):
         # 将x转换成32-bit floating point形式，并在dim=0增加维数为1的维度
+        x = torch.unsqueeze(torch.FloatTensor(x), 0)
         x = torch.unsqueeze(torch.FloatTensor(x), 0).to(self.device)
         # 生成一个在[0, 1)内的随机数，如果小于EPSILON，选择最优动作
         if np.random.uniform() < EPSILON:
@@ -138,6 +174,7 @@ class DQN(object):
         b_memory = random.choices(self.memory, k=BATCH_SIZE)
         b_s = torch.FloatTensor([b_memory[i][0]
                                 for i in range(len(b_memory))]).to(self.device)
+        b_s = torch.unsqueeze(b_s, 1)
         # 将32个s抽出，转为32-bit floating point形式，并存储到b_s中，b_s为32行4列
         b_a = torch.LongTensor([[int(b_memory[i][1][0])]
                                for i in range(len(b_memory))]).to(self.device)
@@ -147,10 +184,10 @@ class DQN(object):
         # 将32个r抽出，转为32-bit floating point形式，并存储到b_s中，b_r为32行1列
         b_s_ = torch.FloatTensor([b_memory[i][2]
                                  for i in range(len(b_memory))]).to(self.device)
+        b_s_ = torch.unsqueeze(b_s_, 1)
         # 将32个s_抽出，转为32-bit floating point形式，并存储到b_s中，b_s_为32行4列
         # 获取32个transition的评估值和目标值，并利用损失函数和优化器进行评估网络参数更新
 
-        print(self.eval_net(b_s).shape)
         q_eval = self.eval_net(b_s).gather(1, b_a)
         # eval_net(b_s)通过评估网络输出32行每个b_s对应的一系列动作值，然后.gather(1, b_a)代表对每行对应索引b_a的Q值提取进行聚合
         q_next = self.target_net(b_s_).detach()
@@ -196,7 +233,7 @@ if __name__ == '__main__':
             os.system("cls")
             env.mapPrint()                                                    # 显示实验动画
             # 输入该步对应的状态s，选择动作
-            s = np.array(env.numMap()).reshape([1, -1])[0]
+            s = env.numMap()
             a = dqn.choose_action(s)
             # 执行动作，获得反馈
             s_, r, over, tempMaxNum = myStep(env, a)

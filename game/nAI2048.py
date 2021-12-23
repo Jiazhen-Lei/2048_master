@@ -30,7 +30,9 @@ def worst_val(map):
 def dfs(board: Board, now_step, limit_step):
     can_move = [True for i in range(4)]
     move = [board for i in range(4)]
+    secondBest = []
     if now_step == 0:
+        # if False:
         new = Board(SIZE, board.map)
         move[0], can_move[0], _ = new.move_up()
         new = Board(SIZE, board.map)
@@ -55,6 +57,7 @@ def dfs(board: Board, now_step, limit_step):
             if not can_move[i]:
                 continue
             val_now, x, y, k = worst_val(move[i])
+            val_now = [0] if sum(val_now) <= 0 else val_now
             if sum(val_now) > sum(best_val):
                 best_move = i
                 best_val = val_now
@@ -70,9 +73,14 @@ def dfs(board: Board, now_step, limit_step):
             val_now = [0] if sum(val_now) <= 0 else val_now
             if sum(val_now) > sum(best_val):
                 best_move = i
+                secondBest = best_val
                 best_val = val_now
     # print(now_step,best_move,best_val)
     # print(board.map)
+    if now_step == 0:
+        print('           secondBest:', secondBest)
+        print('operation=', best_move, 'best_val=', best_val)
+        print(can_move)
     return best_move, best_val, can_move
 
 
@@ -109,8 +117,6 @@ def AI_2048(board: Board, gap=50):
 
         now = board
         operation, best_val, can_move = dfs(now, 0, search_step)
-        print('operation=', operation, 'best_val=', best_val)
-        print(can_move)
         board.mapPrint()
         if operation == 0:
             board.move_up()
