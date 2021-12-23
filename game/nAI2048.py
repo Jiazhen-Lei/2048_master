@@ -9,9 +9,9 @@ size_x = size_y = SIZE = 4
 
 
 def worst_val(map):
-    new = map
+    new = map.numMap()
     ansx = ansy = ansk = 0
-    worst = 10000
+    worst = [1000000]
 
     for i in range(size_x):
         for j in range(size_y):
@@ -19,45 +19,56 @@ def worst_val(map):
                 if new[i][j] > 0:
                     continue
                 new[i][j] = k*2
-                now_val = val.evaluation(new)
-                if now_val < worst:
+                now_val = val.evaluation(new, map.score)
+                if sum(now_val) < sum(worst):
                     worst, ansx, ansy, ansk = now_val, i, j, k*2
                 new[i][j] = 0
 
     return worst, ansx, ansy, ansk
 
 
-def dfs(board, now_step, limit_step):
+def dfs(board: Board, now_step, limit_step):
     can_move = [True for i in range(4)]
     move = [board for i in range(4)]
-    new = Board(SIZE, board.map)
-    move[0], can_move[0] = new.move_up()
-    new = Board(SIZE, board.map)
-    move[1], can_move[1] = new.move_down()
-    new = Board(SIZE, board.map)
-    move[2], can_move[2] = new.move_left()
-    new = Board(SIZE, board.map)
-    move[3], can_move[3] = new.move_right()
+    if now_step == 0:
+        new = Board(SIZE, board.map)
+        move[0], can_move[0] = new.move_up()
+        new = Board(SIZE, board.map)
+        move[1], can_move[1] = new.move_down()
+        new = Board(SIZE, board.map)
+        move[2], can_move[2] = new.move_left()
+        new = Board(SIZE, board.map)
+        move[3], can_move[3] = new.move_right()
+    else:
+        new = Board(SIZE, board.map, board.score)
+        move[0], can_move[0] = new.move_up()
+        new = Board(SIZE, board.map, board.score)
+        move[1], can_move[1] = new.move_down()
+        new = Board(SIZE, board.map, board.score)
+        move[2], can_move[2] = new.move_left()
+        new = Board(SIZE, board.map, board.score)
+        move[3], can_move[3] = new.move_right()
     best_move = -1
-    best_val = -1
+    best_val = [-1]
     if now_step == limit_step:
         for i in range(4):
             if not can_move[i]:
                 continue
-            val_now, x, y, k = worst_val(move[i].numMap())
-            if val_now > best_val:
+            val_now, x, y, k = worst_val(move[i])
+            if sum(val_now) > sum(best_val):
                 best_move = i
                 best_val = val_now
     else:
         for i in range(4):
             if not can_move[i]:
                 continue
-            val_now, x, y, k = worst_val(move[i].numMap())
+            val_now, x, y, k = worst_val(move[i])
             move[i].add_xy(x, y, k)
             now_move, val_now, blank_move = dfs(
                 move[i], now_step+1, limit_step)
-            val_now = max(0, val_now)
-            if val_now > best_val:
+            # val_now = max(0, val_now)
+            val_now = [0] if sum(val_now) <= 0 else val_now
+            if sum(val_now) > sum(best_val):
                 best_move = i
                 best_val = val_now
     # print(now_step,best_move,best_val)
@@ -68,7 +79,7 @@ def dfs(board, now_step, limit_step):
 lastTime = pygame.time.get_ticks()
 
 
-def AI_2048(board, gap=50):
+def AI_2048(board:Board, gap=50):
     global lastTime
     if pygame.time.get_ticks() - lastTime > gap:
         lastTime = pygame.time.get_ticks()
@@ -77,7 +88,7 @@ def AI_2048(board, gap=50):
                 pygame.quit()  # 直接退出
             elif MOUSEBUTTONDOWN == event.type:
                 pressed_array = pygame.mouse.get_pressed()
-                if pressed_array[0] == 1: # 左键被按下
+                if pressed_array[0] == 1:  # 左键被按下
                     pos = pygame.mouse.get_pos()
                     mouse_x = pos[0]  # x坐标
                     mouse_y = pos[1]  # y坐标
@@ -100,6 +111,7 @@ def AI_2048(board, gap=50):
         operation, best_val, can_move = dfs(now, 0, search_step)
         print('operation=', operation, 'best_val=', best_val)
         print(can_move)
+        board.mapPrint()
         if operation == 0:
             board.move_up()
             if(board.changed):
@@ -117,4 +129,4 @@ def AI_2048(board, gap=50):
             if(board.changed):
                 board.add()  # 添加一个新数
             # time.sleep(0.1)
-        return False # 不需要重启
+        return False  # 不需要重启
