@@ -133,16 +133,28 @@ class Board:
         else:
             return False
 
+    def move(self, dir):
+        if dir == 0:
+            return self.move_up()
+        elif dir == 1:
+            return self.move_right()
+        elif dir == 2:
+            return self.move_down()
+        elif dir == 3:
+            return self.move_left()
+
     # 向上计算
     def move_up(self):
         self.changed = False
         newLines = []
+        thisScore = 0
         for i in range(self.size):
             tempLine, tempChanged, tempScore = lineProcess(
                 self.map[i, :])  # 将map拆分成line进行处理
-            self.score += tempScore
+            thisScore += tempScore
             newLines.append(tempLine)
             self.changed = self.changed or tempChanged
+        self.score += thisScore
         if self.changed:  # 发生改变
             newMap = np.vstack((newLines[0], newLines[1]))
             for i in range(2, len(newLines)):
@@ -150,18 +162,20 @@ class Board:
             self.map = newMap
         if self.debug:
             self.mapPrint()
-        return self, self.changed
+        return self, self.changed, thisScore
 
     # 向下计算
     def move_down(self):
         self.changed = False
         newLines = []
+        thisScore = 0
         for i in range(self.size):
             tempLine, tempChanged, tempScore = lineProcess(
                 self.map[i, ::-1])  # 将map拆分成line进行处理
-            self.score += tempScore
+            thisScore += tempScore
             newLines.append(tempLine)
             self.changed = self.changed or tempChanged
+        self.score += thisScore
         if self.changed:  # 发生改变
             newMap = np.vstack((newLines[0][::-1], newLines[1][::-1]))
             for i in range(2, len(newLines)):
@@ -169,18 +183,20 @@ class Board:
             self.map = newMap
         if self.debug:
             self.mapPrint()
-        return self, self.changed
+        return self, self.changed, thisScore
 
     # 向左计算
     def move_left(self):
         self.changed = False
         newLines = []
+        thisScore = 0
         for i in range(self.size):
             tempLine, tempChanged, tempScore = lineProcess(
                 self.map[:, i])  # 将map拆分成line进行处理
-            self.score += tempScore
+            thisScore += tempScore
             newLines.append(tempLine)
             self.changed = self.changed or tempChanged
+        self.score += thisScore
         if self.changed:  # 发生改变
             newMap = np.hstack(
                 (np.transpose([newLines[0]]), np.transpose([newLines[1]])))
@@ -189,18 +205,20 @@ class Board:
             self.map = newMap
         if self.debug:
             self.mapPrint()
-        return self, self.changed
+        return self, self.changed, thisScore
 
     # 向右计算
     def move_right(self):
         self.changed = False
         newLines = []
+        thisScore = 0
         for i in range(self.size):
             tempLine, tempChanged, tempScore = lineProcess(
                 self.map[::-1, i])  # 将map拆分成line进行处理
-            self.score += tempScore
+            thisScore += tempScore
             newLines.append(tempLine)
             self.changed = self.changed or tempChanged
+        self.score += thisScore
         if self.changed:  # 发生改变
             newMap = np.hstack(
                 (np.transpose([newLines[0][::-1]]), np.transpose([newLines[1][::-1]])))
@@ -209,7 +227,7 @@ class Board:
             self.map = newMap
         if self.debug:
             self.mapPrint()
-        return self, self.changed
+        return self, self.changed, thisScore
 
     # 判断游戏结束
     def over(self):

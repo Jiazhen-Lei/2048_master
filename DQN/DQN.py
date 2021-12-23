@@ -1,21 +1,30 @@
+from interface import myStep
+from board import Board
 import torch                                    # 导入torch
 import torch.nn as nn                           # 导入torch.nn
 import torch.nn.functional as F                 # 导入torch.nn.functional
 import numpy as np                              # 导入numpy
-import gym                                      # 导入gym
+import sys
+import os
+sys.path.append("..")
+
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 超参数
-BATCH_SIZE = 32                                 # 样本数量
+BATCH_SIZE = 128                                 # 样本数量
 LR = 0.01                                       # 学习率
 EPSILON = 0.9                                   # greedy policy
 GAMMA = 0.9                                     # reward discount
-TARGET_REPLACE_ITER = 100                       # 目标网络更新频率
-MEMORY_CAPACITY = 2000                          # 记忆库容量
+TARGET_REPLACE_ITER = 500                       # 目标网络更新频率
+MEMORY_CAPACITY = 5000                          # 记忆库容量
 
 # 使用gym库中的环境：CartPole，且打开封装(若想了解该环境，请自行百度)
-env = gym.make('CartPole-v0').unwrapped
-N_ACTIONS = env.action_space.n                  # 杆子动作个数 (2个)
-N_STATES = env.observation_space.shape[0]       # 杆子状态个数 (4个)
+# env = gym.make('CartPole-v0').unwrapped
+# N_ACTIONS = env.action_space.n                  # 杆子动作个数 (2个)
+# N_STATES = env.observation_space.shape[0]       # 杆子状态个数 (4个)
+N_ACTIONS = 4  # 动作数4个
+N_STATES = 16  # 状态数4*4=16个
 
 
 """
@@ -37,9 +46,14 @@ class Net(nn.Module):
         super(Net, self).__init__()
 
         # 设置第一个全连接层(输入层到隐藏层): 状态数个神经元到50个神经元
-        self.fc1 = nn.Linear(N_STATES, 50)
+        self.fc1 = nn.Linear(N_STATES, 200)
         # 权重初始化 (均值为0，方差为0.1的正态分布)
         self.fc1.weight.data.normal_(0, 0.1)
+        self.fc2 = nn.Linear(200, 500)
+        # 权重初始化 (均值为0，方差为0.1的正态分布)
+        self.fc3 = nn.Linear(500, 50)
+        # 权重初始化 (均值为0，方差为0.1的正态分布)
+        self.fc3.weight.data.normal_(0, 0.1)
         # 设置第二个全连接层(隐藏层到输出层): 50个神经元到动作数个神经元
         self.out = nn.Linear(50, N_ACTIONS)
         # 权重初始化 (均值为0，方差为0.1的正态分布)
@@ -48,7 +62,10 @@ class Net(nn.Module):
     # 定义forward函数 (x为状态)
     def forward(self, x):
         # 连接输入层到隐藏层，且使用激励函数ReLU来处理经过隐藏层后的值
+        x = x.to(device)
         x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         # 连接隐藏层到输出层，获得最终的输出值 (即动作值)
         actions_value = self.out(x)
         return actions_value                                                    # 返回动作值
@@ -57,9 +74,10 @@ class Net(nn.Module):
 # 定义DQN类 (定义两个网络)
 class DQN(object):
     # 定义DQN的一系列属性
-    def __init__(self):
+    def __init__(self, device):
+        self.device = device
         # 利用Net创建两个神经网络: 评估网络和目标网络
-        self.eval_net, self.target_net = Net(), Net()
+        self.eval_net, self.target_net = Net().to(self.device), Net().to(self.device)
         # for target updating
         self.learn_step_counter = 0
         # for storing memory
@@ -74,13 +92,13 @@ class DQN(object):
     # 定义动作选择函数 (x为状态)
     def choose_action(self, x):
         # 将x转换成32-bit floating point形式，并在dim=0增加维数为1的维度
-        x = torch.unsqueeze(torch.FloatTensor(x), 0)
+        x = torch.unsqueeze(torch.FloatTensor(x), 0).to(self.device)
         # 生成一个在[0, 1)内的随机数，如果小于EPSILON，选择最优动作
         if np.random.uniform() < EPSILON:
             # 通过对评估网络输入状态x，前向传播获得动作值
             actions_value = self.eval_net.forward(x)
             # 输出每一行最大值的索引，并转化为numpy ndarray形式
-            action = torch.max(actions_value, 1)[1].data.numpy()
+            action = torch.max(actions_value, 1)[1].data.cpu().numpy()
             # 输出action的第一个数
             action = action[0]
         else:                                                                   # 随机选择动作
@@ -114,13 +132,15 @@ class DQN(object):
         sample_index = np.random.choice(MEMORY_CAPACITY, BATCH_SIZE)
         # 抽取32个索引对应的32个transition，存入b_memory
         b_memory = self.memory[sample_index, :]
-        b_s = torch.FloatTensor(b_memory[:, :N_STATES])
+        b_s = torch.FloatTensor(b_memory[:, :N_STATES]).to(self.device)
         # 将32个s抽出，转为32-bit floating point形式，并存储到b_s中，b_s为32行4列
-        b_a = torch.LongTensor(b_memory[:, N_STATES:N_STATES+1].astype(int))
+        b_a = torch.LongTensor(
+            b_memory[:, N_STATES:N_STATES+1].astype(int)).to(self.device)
         # 将32个a抽出，转为64-bit integer (signed)形式，并存储到b_a中 (之所以为LongTensor类型，是为了方便后面torch.gather的使用)，b_a为32行1列
-        b_r = torch.FloatTensor(b_memory[:, N_STATES+1:N_STATES+2])
+        b_r = torch.FloatTensor(
+            b_memory[:, N_STATES+1:N_STATES+2]).to(self.device)
         # 将32个r抽出，转为32-bit floating point形式，并存储到b_s中，b_r为32行1列
-        b_s_ = torch.FloatTensor(b_memory[:, -N_STATES:])
+        b_s_ = torch.FloatTensor(b_memory[:, -N_STATES:]).to(self.device)
         # 将32个s_抽出，转为32-bit floating point形式，并存储到b_s中，b_s_为32行4列
 
         # 获取32个transition的评估值和目标值，并利用损失函数和优化器进行评估网络参数更新
@@ -139,40 +159,47 @@ class DQN(object):
 
 
 # 令dqn=DQN类
-dqn = DQN()
+dqn = DQN(device)
 
 for i in range(400):                                                    # 400个episode循环
     print('<<<<<<<<<Episode: %s' % i)
-    s = env.reset()                                                     # 重置环境
+    env = Board(4)                                                     # 重置环境
     # 初始化该循环对应的episode的总奖励
     episode_reward_sum = 0
 
     # 开始一个episode (每一个循环代表一步)
     while True:
-        env.render()                                                    # 显示实验动画
+        os.system("cls")
+        env.mapPrint()                                                    # 显示实验动画
         # 输入该步对应的状态s，选择动作
+        s = np.array(env.numMap()).reshape([1, -1])[0]
         a = dqn.choose_action(s)
         # 执行动作，获得反馈
-        s_, r, done, info = env.step(a)
+        s_, r, over = myStep(env, a)
+        print('action:', a, 'reward:', r, 'score:', env.score, '\nepisode:', i,
+              'dqn.memory_counter:', dqn.memory_counter)
 
         # 修改奖励 (不修改也可以，修改奖励只是为了更快地得到训练好的摆杆)
-        x, x_dot, theta, theta_dot = s_
-        r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
-        r2 = (env.theta_threshold_radians - abs(theta)) / \
-            env.theta_threshold_radians - 0.5
-        new_r = r1 + r2
+        # x, x_dot, theta, theta_dot = s_
+        # r1 = (env.x_threshold - abs(x)) / env.x_threshold - 0.8
+        # r2 = (env.theta_threshold_radians - abs(theta)) / \
+        #     env.theta_threshold_radians - 0.5
+        # new_r = r1 + r2
+
+        new_r = r
 
         dqn.store_transition(s, a, new_r, s_)                 # 存储样本
         # 逐步加上一个episode内每个step的reward
         episode_reward_sum += new_r
 
-        s = s_                                                # 更新状态
+        # s = s_                                                # 更新状态
+        # 因为我的myStep中相当于已经更新过s了所以这里注释掉
 
         if dqn.memory_counter > MEMORY_CAPACITY:              # 如果累计的transition数量超过了记忆库的固定容量2000
             # 开始学习 (抽取记忆，即32个transition，并对评估网络参数进行更新，并在开始学习后每隔100次将评估网络的参数赋给目标网络)
             dqn.learn()
 
-        if done:       # 如果done为True
+        if over:       # 如果over为True
             # round()方法返回episode_reward_sum的小数点四舍五入到2个数字
             print('episode%s---reward_sum: %s' %
                   (i, round(episode_reward_sum, 2)))

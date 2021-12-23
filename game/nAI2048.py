@@ -32,22 +32,22 @@ def dfs(board: Board, now_step, limit_step):
     move = [board for i in range(4)]
     if now_step == 0:
         new = Board(SIZE, board.map)
-        move[0], can_move[0] = new.move_up()
+        move[0], can_move[0], _ = new.move_up()
         new = Board(SIZE, board.map)
-        move[1], can_move[1] = new.move_down()
+        move[1], can_move[1], _ = new.move_down()
         new = Board(SIZE, board.map)
-        move[2], can_move[2] = new.move_left()
+        move[2], can_move[2], _ = new.move_left()
         new = Board(SIZE, board.map)
-        move[3], can_move[3] = new.move_right()
+        move[3], can_move[3], _ = new.move_right()
     else:
         new = Board(SIZE, board.map, board.score)
-        move[0], can_move[0] = new.move_up()
+        move[0], can_move[0], _ = new.move_up()
         new = Board(SIZE, board.map, board.score)
-        move[1], can_move[1] = new.move_down()
+        move[1], can_move[1], _ = new.move_down()
         new = Board(SIZE, board.map, board.score)
-        move[2], can_move[2] = new.move_left()
+        move[2], can_move[2], _ = new.move_left()
         new = Board(SIZE, board.map, board.score)
-        move[3], can_move[3] = new.move_right()
+        move[3], can_move[3], _ = new.move_right()
     best_move = -1
     best_val = [-1]
     if now_step == limit_step:
@@ -79,7 +79,7 @@ def dfs(board: Board, now_step, limit_step):
 lastTime = pygame.time.get_ticks()
 
 
-def AI_2048(board:Board, gap=50):
+def AI_2048(board: Board, gap=50):
     global lastTime
     if pygame.time.get_ticks() - lastTime > gap:
         lastTime = pygame.time.get_ticks()
