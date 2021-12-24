@@ -1,3 +1,4 @@
+from numpy import result_type
 import game.val as val
 import pygame
 from board import *
@@ -26,6 +27,125 @@ def worst_val(map):
                 new[i][j] = 0
 
     return worst, ansx, ansy, ansk
+
+
+class searchResult:
+    def __init__(self, move=-1, score=0, positions=0, cutoffs=0) -> None:
+        self.move = move
+        self.positions = positions
+        self.cutoffs = cutoffs
+        self.score = score
+
+
+vectors = [[0, 1], [1, 0], [-1, 0], [0, -1]]
+
+
+class map:
+    def __init__(self, numMap: list) -> None:
+        self.map = numMap
+        self.marked = []
+
+    def islands(self):
+        islandsMark = 0
+        self.marked = [[True]*4]*4
+        for i in range(4):
+            for j in range(4):
+                if self.map[i][j] != 0:
+                    self.marked[i][j] = False
+        for i in range(4):
+            for j in range(4):
+                if self.map[i][j] != 0 and not self.marked[i][j]:
+                    islandsMark += 1
+                    self.mark(i, j, self.map[i][j])
+        return islandsMark
+
+    def mark(self, x, y, value):
+        if x >= 0 and x <= 3 and y >= 0 and y <= 3 and self.map[x][y] != 0 and self.map[x][y] == value and not self.marked[x][y]:
+            self.marked[x][y] = True
+            for direction in range(4):
+                vector = vectors[direction]
+                self.mark(x+vector[0], y+vector[1], value)
+
+
+def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult:
+    bestScore = 0
+    bestMove = -1
+    result = searchResult()
+
+    if plyaerTurn:
+        bestScore = alpha
+        for direction in range(4):
+            newBoard = Board(4, thisBoard.map)
+            _, changed, _ = newBoard.move(direction)
+            if changed:
+                positions += 1
+                if depth == 0:
+                    result.move = direction
+                    result.score = sum(val.evaluation(newBoard.numMap()))
+                else:
+                    result = search(
+                        newBoard, depth-1, bestScore, beta, positions, cutoffs, False)
+                    if result.score > 9900:
+                        result.score -= 1
+                    positions = result.positions
+                    cutoffs = result.cutoffs
+
+                if result.score > bestScore:
+                    bestScore = result.score
+                    bestMove = direction
+                if bestScore > beta:
+                    cutoffs += 1
+                    return searchResult(bestMove, beta, positions, cutoffs)
+    else:
+        bestScore = beta
+        newBoard = Board(4, thisBoard.map)
+        score_2 = []
+        score_4 = []
+        worstSituation = []
+        cells = newBoard.getAvailableCells()
+        for value in [2, 4]:
+            for i in range(len(cells)):
+                if not newBoard.add_xy(cells[i][0], cells[i][1], value):
+                    print("!!!!")
+                    input()
+                if value == 2:
+                    score_2.append(-val.smothness(newBoard.numMap()
+                                                  )+map(newBoard.numMap()).islands())
+                if value == 4:
+                    score_4.append(-val.smothness(newBoard.numMap()
+                                                  )+map(newBoard.numMap()).islands())
+                newBoard.remove_xy(cells[i][0], cells[i][1])
+
+        maxScore = max(max(score_2), max(score_4))
+        for i in score_2:
+            if i == maxScore:
+                worstSituation.append([cells[score_2.index(i)], 2])
+        for i in score_4:
+            if i == maxScore:
+                worstSituation.append([cells[score_4.index(i)], 4])
+
+        for situation in worstSituation:
+            nnewBoard = Board(4, thisBoard.map)
+            nnewBoard.add_xy(situation[0][0], situation[0][1], situation[1])
+            positions += 1
+            result = search(nnewBoard, depth, alpha,
+                            bestScore, positions, cutoffs, True)
+            positions = result.positions
+            cutoffs = result.cutoffs
+
+            if result.score < bestScore:
+                bestScore = result.score
+
+            if bestScore < alpha:
+                cutoffs += 1
+                return searchResult(-1, alpha, positions, cutoffs)
+
+    return searchResult(bestMove, bestScore, positions, cutoffs)
+
+
+def getBestMove(board: Board, depth=3):
+    newBest = search(board, depth, -1000000, 1000000, 0, 0, True)
+    return newBest.move
 
 
 def dfs(board: Board, now_step, limit_step):
@@ -90,7 +210,7 @@ def dfs(board: Board, now_step, limit_step):
 lastTime = int(time.time()*1000)
 
 
-def AI_2048(board: Board, gap=50,noGame=False):
+def AI_2048(board: Board, gap=50, noGame=False):
     global lastTime
     if int(time.time()*1000) - lastTime > gap:
         lastTime = int(time.time()*1000)
@@ -120,7 +240,9 @@ def AI_2048(board: Board, gap=50,noGame=False):
                         return True
 
         now = board
-        operation, best_val, can_move = dfs(now, 0, search_step)
+        # operation, best_val, can_move = dfs(now, 0, search_step)
+        operation = getBestMove(now)
+
         # board.mapPrint()
         if operation == 0:
             board.move_up()

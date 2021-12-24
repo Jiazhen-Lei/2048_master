@@ -1,3 +1,4 @@
+from os import access
 import random
 
 import numpy as np
@@ -82,12 +83,12 @@ class Board:
         self.changed = False
         self.map = np.array([[Block(0, [i, j])
                               for i in range(size)] for j in range(size)], dtype=Block)
+        self.add()  # 随机产生第一个随机数
+        self.add()  # 随机产生第二个随机数
         if isinstance(map, list) or isinstance(map, np.ndarray):
             for i in range(size):
                 for j in range(size):
                     self.map[i][j] = Block(map[i][j].num, [i, j])
-        self.add()  # 随机产生第一个随机数
-        self.add()  # 随机产生第二个随机数
 
     def numMap(self):
         return [[self.map[i, j].num for j in range(self.size)] for i in range(self.size)]
@@ -131,15 +132,18 @@ class Board:
         else:
             return False
 
+    def remove_xy(self, x, y):
+        self.map[x][y] = Block(0, [x, y])
+
     def move(self, dir):
         if dir == 0:
             return self.move_up()
         elif dir == 1:
-            return self.move_right()
-        elif dir == 2:
             return self.move_down()
-        elif dir == 3:
+        elif dir == 2:
             return self.move_left()
+        elif dir == 3:
+            return self.move_right()
 
     # 向上计算
     def move_up(self):
@@ -246,3 +250,12 @@ class Board:
                     return False
         # print("游戏结束")
         return True
+
+    def getAvailableCells(self):
+        AvCells = []
+        numMap = self.numMap()
+        for i in range(self.size):
+            for j in range(self.size):
+                if numMap[i][j] == 0:
+                    AvCells.append([i, j])
+        return AvCells

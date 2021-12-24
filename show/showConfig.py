@@ -70,4 +70,4 @@ tip_front = pygame.font.Font(None, 25) #tip
 
 my_word_color = (106, 90, 205)
 
-animeFrame = 3
+animeFrame = 1

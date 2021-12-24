@@ -106,5 +106,4 @@ def play():
                     continue
 
 if __name__ == '__main__':
-    os.system("cls")
     play()
