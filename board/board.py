@@ -2,8 +2,6 @@ import random
 
 import numpy as np
 
-from pygame import font
-
 from animate.animate import anime
 
 

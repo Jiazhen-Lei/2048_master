@@ -18,7 +18,7 @@ sys.path.append("..")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 超参数
-BATCH_SIZE = 32                                 # 样本数量
+BATCH_SIZE = 1024                                 # 样本数量
 LR = 0.01                                       # 学习率
 EPSILON = 0.9                                   # greedy policy
 GAMMA = 0.9                                     # reward discount
@@ -63,6 +63,7 @@ class FCNet(nn.Module):
 
     # 定义forward函数 (x为状态)
     def forward(self, x):
+        x = x.view(x.size(0), -1)
         # 连接输入层到隐藏层，且使用激励函数ReLU来处理经过隐藏层后的值
         x = x.to(device)
         x = F.relu(self.fc1(x))
@@ -113,8 +114,7 @@ class DQN(object):
         self.device = device
         # 利用Net创建两个神经网络: 评估网络和目标网络
         # self.eval_net, self.target_net = FCNet().to(self.device), FCNet().to(self.device)
-        self.eval_net, self.target_net = CNN_Net(N_STATES, N_ACTIONS).to(
-            self.device), CNN_Net(N_STATES, N_ACTIONS).to(self.device)
+        self.eval_net, self.target_net = CNN_Net(N_STATES, N_ACTIONS).to(self.device), CNN_Net(N_STATES, N_ACTIONS).to(self.device)
         # for target updating
         self.learn_step_counter = 0
         # for storing memory

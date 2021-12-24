@@ -3,6 +3,7 @@ import pygame
 from board import *
 from pygame.locals import *
 from show.show import *
+import time
 
 search_step = 3
 size_x = size_y = SIZE = 4
@@ -78,46 +79,49 @@ def dfs(board: Board, now_step, limit_step):
     # print(now_step,best_move,best_val)
     # print(board.map)
     if now_step == 0:
-        print('           secondBest:', secondBest)
+        if len(best_val) == len(secondBest):
+            print('             secondWin:', [
+                best_val[i]-secondBest[i] for i in range(len(best_val))])
         print('operation=', best_move, 'best_val=', best_val)
         print(can_move)
     return best_move, best_val, can_move
 
 
-lastTime = pygame.time.get_ticks()
+lastTime = int(time.time()*1000)
 
 
-def AI_2048(board: Board, gap=50):
+def AI_2048(board: Board, gap=50,noGame=False):
     global lastTime
-    if pygame.time.get_ticks() - lastTime > gap:
-        lastTime = pygame.time.get_ticks()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()  # 直接退出
-            elif MOUSEBUTTONDOWN == event.type:
-                pressed_array = pygame.mouse.get_pressed()
-                if pressed_array[0] == 1:  # 左键被按下
+    if int(time.time()*1000) - lastTime > gap:
+        lastTime = int(time.time()*1000)
+        if not noGame:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()  # 直接退出
+                elif MOUSEBUTTONDOWN == event.type:
+                    pressed_array = pygame.mouse.get_pressed()
+                    if pressed_array[0] == 1:  # 左键被按下
+                        pos = pygame.mouse.get_pos()
+                        mouse_x = pos[0]  # x坐标
+                        mouse_y = pos[1]  # y坐标
+                        if 280 < mouse_x < 350 and 90 < mouse_y < 130:
+                            showBotton(4)
+                            pygame.display.update()
+                            return False
+
+                elif MOUSEBUTTONUP == event.type:
                     pos = pygame.mouse.get_pos()
                     mouse_x = pos[0]  # x坐标
                     mouse_y = pos[1]  # y坐标
                     if 280 < mouse_x < 350 and 90 < mouse_y < 130:
-                        showBotton(4)
-                        pygame.display.update()
-                        return False
-
-            elif MOUSEBUTTONUP == event.type:
-                pos = pygame.mouse.get_pos()
-                mouse_x = pos[0]  # x坐标
-                mouse_y = pos[1]  # y坐标
-                if 280 < mouse_x < 350 and 90 < mouse_y < 130:
-                    print("Please choose your new mode")
-                    board.__init__(SIZE)
-                    showAll(board)
-                    return True
+                        print("Please choose your new mode")
+                        board.__init__(SIZE)
+                        showAll(board)
+                        return True
 
         now = board
         operation, best_val, can_move = dfs(now, 0, search_step)
-        board.mapPrint()
+        # board.mapPrint()
         if operation == 0:
             board.move_up()
             if(board.changed):

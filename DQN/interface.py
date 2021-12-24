@@ -2,8 +2,8 @@
 import numpy as np
 import sys
 sys.path.append("..")
-from game import val
 from board import Board
+from game import val
 
 
 def max_num(map):
@@ -15,7 +15,11 @@ def max_num(map):
     return max_num
 
 
+noChangedNum = 0
+
+
 def myStep(board: Board, a):
+    global noChangedNum
     _, changed, score_r = board.move(a)  # 简单的把当前步骤得分作为奖励
     board.add()
     max_r = max_num(board.numMap())
@@ -26,7 +30,12 @@ def myStep(board: Board, a):
     s_ = board.numMap()
     over = board.over()
     if not changed:
-        r = -1
+        noChangedNum += 1
+        r = -1*noChangedNum
+    else:
+        noChangedNum = 0
+    if noChangedNum >= 10:
+        over = True
     if over:
-        r = -1
+        r = -10
     return s_, r, over, max_r

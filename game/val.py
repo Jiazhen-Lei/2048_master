@@ -1,4 +1,5 @@
 import math
+from sys import _current_frames
 
 
 def evaluation(map, score=0):
@@ -12,14 +13,15 @@ def evaluation(map, score=0):
     # emptyWeight = 0  # 2.7
     # maxWeight = 1  # 0.01
     # disWeight = 0.5
-    smoothWeight = 0.5  # 0.5
-    mono2Weight = 0  # 0.03
-    emptyWeight = 5  # 2.7
+    smoothWeight = 0.1  # 0.5
+    mono2Weight = 1.3  # 0.03
+    emptyWeight = 2.7  # 2.7
     maxWeight = 1  # 0.01
-    disWeight = 0.05
+    disWeight = 0
+    scoreWeight = 0
 
     result = [disWeight*dis_weight(map), smoothWeight * smothness(map), mono2Weight *
-              monotonicity(map), emptyWeight*empty_num(map), maxWeight*max_num(map), score]
+              monotonicity(map), emptyWeight*empty_num(map), maxWeight*max_num(map), scoreWeight*score]
     return result
 
 
@@ -98,31 +100,45 @@ def smothness(map):
 
 
 def monotonicity(map):
-    totals = [0, 0]  # totals【0】储存单调增加，totals[1]储存单调递减
+    totals = [0]*4  # 四个方向的单调性评估
     # up/down direction
     # add
 
     for i in range(4):
-        now = []
-        for j in range(4):
-            if map[i][j] == 0:
-                continue
-            now.append(map[i][j])
-        if len(now) == 0:
-            continue
-        if sorted(now) == now:
-            totals[0] += 1
-    for j in range(4):
-        now = []
-        for i in range(4):
-            if map[i][j] == 0:
-                continue
-            now.append(map[i][j])
-        if len(now) == 0:
-            continue
-        if sorted(now) == now:
-            totals[1] += 1
-    return max(totals)
+        current = 0
+        next = current+1
+        while next < 4:
+            while next < 4 and map[i][next] == 0:
+                next += 1
+            if next >= 4:
+                next -= 1
+            currentValue = math.log2(
+                map[i][current]) if map[i][current] != 0 else 0
+            nextValue = math.log2(map[i][next]) if map[i][next] != 0 else 0
+            if currentValue > nextValue:
+                totals[0] += nextValue-currentValue
+            else:
+                totals[1] += currentValue-nextValue
+            current = next
+            next += 1
+    for i in range(4):
+        current = 0
+        next = current+1
+        while next < 4:
+            while next < 4 and map[next][i] == 0:
+                next += 1
+            if next >= 4:
+                next -= 1
+            currentValue = math.log2(
+                map[current][i]) if map[current][i] != 0 else 0
+            nextValue = math.log2(map[next][i]) if map[next][i] != 0 else 0
+            if currentValue > nextValue:
+                totals[2] += nextValue-currentValue
+            else:
+                totals[3] += currentValue-nextValue
+            current = next
+            next += 1
+    return max(totals[:2])+max(totals[2:])
 
 
 '''
