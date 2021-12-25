@@ -6,17 +6,12 @@ from game.nAI2048 import *
 
 def get_tip(board, gap=50):
     global lastTime
-    if pygame.time.get_ticks() - lastTime > gap:
-        lastTime = pygame.time.get_ticks()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()  # 直接退出
-
+    if int(time.time()*1000) - lastTime > gap:
+        lastTime = int(time.time()*1000)
+        
         now = board
-        operation, best_val, can_move = dfs(now, 0, search_step)
-        print('operation=', operation, 'best_val=', best_val)
-        print(can_move)
-        return operation+1
+        operation = getBestMove(now)
+        return operation
 
 def tip_2048(board: Board, tip):
     for event in pygame.event.get():

@@ -133,7 +133,7 @@ def slideProce(thisBlock: Block, posIndex, animateList: list):
         thisBlock.animeType = 0
 
 
-def showAll(board: Board,operation = 0):
+def showAll(board: Board,operation = 4):
 
     screen_display.blit(show_display[0], (0, 0))
     screen_display.blit(show_display[1], (0, Pixel * 2-5))

@@ -68,13 +68,13 @@ def play():
                         break
                 elif 100 < mouse_x < 170 and 90 < mouse_y < 130:
                     print("Start Tip 2048")
-                    tip = 0 # 初始化为空
+                    tip = 4 # 初始化为空
                     while not board.over():
                         clock.tick(60)
                         tip, GameState = tip2048.tip_2048(board,tip)
                         showAll(board, tip)
                         if GameState:
-                            tip = 0
+                            tip = 4
                             showAll(board, tip)
                             break
                     print("游戏结束")
@@ -88,7 +88,7 @@ def play():
                     print("Start AI 2048")
                     while not board.over():
                         clock.tick(60)
-                        GameState = AI2048.AI_2048(board, 10) #第二个参数调整AI快慢
+                        GameState = AI2048.AI_2048(board, 1000) #第二个参数调整AI快慢
                         showAll(board)
                         if GameState:
                             break
