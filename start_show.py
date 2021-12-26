@@ -1,12 +1,7 @@
 import sys
 import game.base2048 as base
-# import game.tip2048 as tip
-# import game.ai2048 as ai
 import pygame
 from pygame.locals import *
-import cv2
-
-
 
 Pixel = 90
 show_x = 4

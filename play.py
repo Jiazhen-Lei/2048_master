@@ -1,23 +1,12 @@
 from numpy.core.fromnumeric import size
 from board import *
-import math
 from pygame.locals import *
 import pygame
 import game.base2048 as base
 import game.nAI2048 as AI2048
 import game.ntip2048 as tip2048
-from pygame import display
-import sys
 from show.show import *
 from show.showConfig import *
-import os
-import time
-import random
-
-
-# import game.tip2048 as tip
-# import game.ai2048 as ai
-
 
 def play():
     clock = pygame.time.Clock()  # 系统时间
@@ -106,4 +95,5 @@ def play():
                     continue
 
 if __name__ == '__main__':
+    pygame.init()
     play()

@@ -133,14 +133,13 @@ def slideProce(thisBlock: Block, posIndex, animateList: list):
         thisBlock.animeType = 0
 
 
-def showAll(board: Board,operation = 4):
+def showAll(board: Board, button, operation = 4):
 
     screen_display.blit(show_display[0], (0, 0))
     screen_display.blit(show_display[1], (0, Pixel * 2-5))
     screen_display.blit(show_display[2], (0, Pixel * 6))
 
     slideList = []
-
     for i in range(size_x):
         for j in range(size_y):  # 遍历数值块，处理动画
             screen_display.blit(
@@ -163,9 +162,13 @@ def showAll(board: Board,operation = 4):
         showBlock(pos, num)
 
     showScore(board)
-    showBotton(False)
+    # showBotton(False)
     showOhters()
     showTip(operation)
+    button[0].update(screen_display)
+    button[1].update(screen_display)
+    button[2].update(screen_display)
+    button[3].update(screen_display)
 
     pygame.display.update()  # 更新显示
 

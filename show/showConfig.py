@@ -12,6 +12,7 @@ designer_y = 6.5
 PIXEL = 90
 SIZE = 4
 
+# 棋盘颜色设置
 myColorMap = [(203, 193, 182),  # 0
               (239, 229, 219),  # 2
               (238, 225, 201),  # 4
@@ -26,14 +27,20 @@ myColorMap = [(203, 193, 182),  # 0
               (213, 178, 38),  # 2048
               (201, 163, 35)]   # 4096
 
+buttonColorMap = [(203, 193, 182),  # released
+                  (239, 229, 219),  # hovor
+                  (201, 163, 35)]   # clicked
+
+#The button can be styled in a manner similar to CSS.
+BUTTON_STYLE = {"hover_color" : buttonColorMap[1],
+                "clicked_color" : buttonColorMap[2]}
+
 tipWordMap = [('Tip:UP'),  # 向上
               ('Tip:DOWN'), # 向下
               ('Tip:LEFT'), # 向左
               ('Tip:RIGHT'), # 向右
               ('Tip:')]  # 空
               
-
-# 棋盘颜色设置
 # 13个Suface实例块，略小于单元块大小，剩余的部分通过背景色实现边框填充
 block_display = [pygame.Surface((Pixel-5, Pixel-5)) for i in range(13)]
 
@@ -63,6 +70,7 @@ button_down_block.fill((189, 177, 166))
 
 # 字体设置，字体及大小
 start_front = pygame.font.Font(None, PIXEL * 2 // 6)  # 按钮
+button_front = pygame.font.Font(None, PIXEL * 2 // 6)  # 按钮
 board_front = pygame.font.Font(None, PIXEL * 2 // 3)  # 数值矩阵数值
 score_front = pygame.font.Font(None, PIXEL * 2 // 8)  # 得分
 my_2048_front = pygame.font.Font(None, PIXEL * 2 // 2)  # 2048
@@ -71,4 +79,4 @@ tip_front = pygame.font.Font(None, 25) #tip
 
 my_word_color = (106, 90, 205)
 
-animeFrame = 8
+animeFrame = 8 # 动画帧数 10比较丝滑
