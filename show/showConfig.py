@@ -52,7 +52,7 @@ for i in range(len(block_display)):
 # 主体窗口设置
 screen_display = pygame.display.set_mode((Pixel * show_x, Pixel * designer_y))
 show_display = [pygame.Surface((Pixel * show_x, Pixel * 2)), pygame.Surface(
-    (Pixel * show_x, Pixel * size_y + 5)), pygame.Surface((Pixel * show_x, Pixel * 0.3))]
+    (Pixel * show_x, Pixel * size_y + 5)), pygame.Surface((Pixel * show_x, Pixel * 0.5))]
 show_display[0].fill((250, 248, 239))  # 给背景填充颜色，乳白
 show_display[1].fill((189, 177, 166))  # 给背景填充颜色，深灰
 show_display[2].fill((250, 248, 239))  # 给背景填充颜色，乳白

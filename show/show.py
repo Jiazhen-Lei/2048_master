@@ -30,7 +30,7 @@ def showOhters():
     designer_word = designer_front.render(
         ('Designer:雷佳臻 赵广宇 王琪源 蒋晓天 何旭东'), True, my_word_color)
     board_word = designer_word.get_rect()  # 位置
-    board_word.center = (180, 555)  # 居中显示
+    board_word.center = (180, 565)  # 居中显示
     screen_display.blit(designer_word, board_word)  # 显示
 
 
