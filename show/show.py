@@ -18,47 +18,7 @@ def showBotton(button):
     button[1].update(screen_display)
     button[2].update(screen_display)
     button[3].update(screen_display)
-    
-    '''
-    # 虚拟按钮显示
-    if state == 1:
-        screen_display.blit(button_block,(10,90))
-        screen_display.blit(button_down_block,(13,93))
-    elif state == 2:
-        screen_display.blit(button_block,(100,90))
-        screen_display.blit(button_down_block,(103,93))
-    elif state == 3:
-        screen_display.blit(button_block,(190,90))
-        screen_display.blit(button_down_block,(193,93))
-    elif state == 4:
-        screen_display.blit(button_block,(280,90))  
-        screen_display.blit(button_down_block,(283,93))
-    else:
-        screen_display.blit(button_up_block,(10,90))
-        screen_display.blit(button_up_block,(100,90))
-        screen_display.blit(button_up_block,(190,90))
-        screen_display.blit(button_up_block,(280,90))
 
-    base_word = start_front.render('Base', True, my_word_color)
-    board_word = base_word.get_rect()  # 位置
-    board_word.center = (45, Pixel+20)  # 居中显示
-    screen_display.blit(base_word, board_word)  # 显示
-
-    tip_word = start_front.render('Tip', True, my_word_color)
-    board_word = tip_word.get_rect()  # 位置
-    board_word.center = (135, Pixel+20)  # 居中显示
-    screen_display.blit(tip_word, board_word)  # 显示
-
-    ai_word = start_front.render('AI', True, my_word_color)
-    board_word = ai_word.get_rect()  # 位置
-    board_word.center = (225, Pixel+20)  # 居中显示
-    screen_display.blit(ai_word, board_word)  # 显示
-
-    newgame_word = start_front.render('New', True, my_word_color)
-    board_word = newgame_word.get_rect()  # 位置
-    board_word.center = (315, Pixel+20)  # 居中显示
-    screen_display.blit(newgame_word, board_word)  # 显示
-    '''
 
 def showOhters():
     # 2048显示
@@ -140,7 +100,7 @@ def slideProce(thisBlock: Block, posIndex, animateList: list):
         thisBlock.animeType = 0
 
 
-def showAll(board: Board, button, operation = 4):
+def showAll(board: Board, button, operation = 0):
 
     screen_display.blit(show_display[0], (0, 0))
     screen_display.blit(show_display[1], (0, Pixel * 2-5))

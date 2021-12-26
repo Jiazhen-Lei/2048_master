@@ -5,7 +5,9 @@ from show.show import *
 from board.board import *
 
 # 基础2048
-def start_base_2048(board: Board, button):
+def start_base_2048(board: Board, button, extip):
+    GameState = False
+    tip = extip
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()  # 直接退出
@@ -29,8 +31,8 @@ def start_base_2048(board: Board, button):
                     board.add()  # 添加一个新数
 
         button[0].check_event(event)
-        button[1].check_event(event)
+        tip = button[1].check_event(event,tip = tip)
         button[2].check_event(event)
         GameState = button[3].check_event(event)
 
-        return GameState
+    return GameState, tip

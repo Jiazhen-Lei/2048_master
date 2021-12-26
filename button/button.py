@@ -1,7 +1,6 @@
 import pygame as pg
 
 class Button(object):
-    """A fairly straight forward button class."""
     def __init__(self,rect,color,function,**kwargs):
         self.rect = pg.Rect(rect)
         self.color = color
@@ -14,7 +13,6 @@ class Button(object):
         self.render_text()
 
     def process_kwargs(self,kwargs):
-        """Various optional customization you can change by passing kwargs."""
         settings = {"text" : None,
                     "font" : pg.font.Font(None,24),
                     "call_on_release" : True,
@@ -33,7 +31,6 @@ class Button(object):
         self.__dict__.update(settings)
 
     def render_text(self):
-        """Pre render the button text."""
         if self.text:
             if self.hover_font_color:
                 color = self.hover_font_color
@@ -43,25 +40,30 @@ class Button(object):
                 self.clicked_text = self.font.render(self.text,True,color)
             self.text = self.font.render(self.text,True,self.font_color)
 
-    def check_event(self,event):
-        """The button needs to be passed events from your program event loop."""
+    def check_event(self,event,tip = 0):
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-            self.on_click(event)
+            return self.on_click(event,tip)
         elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
-            return self.on_release(event)
+            return self.on_release(event,tip)
+        else:
+            return tip
 
-    def on_click(self,event):
+    def on_click(self,event,tip = 0):
         if self.rect.collidepoint(event.pos):
             self.clicked = True
             if not self.call_on_release:
                 return self.function()
+            else:
+                return tip
         else:
-            return  False
+            return  tip
 
-    def on_release(self,event):
+    def on_release(self,event,tip = 0):
         if self.clicked and self.call_on_release:
             self.clicked = False
             return self.function()
+        else:
+            return tip
         
 
     def check_hover(self):
@@ -74,7 +76,6 @@ class Button(object):
             self.hovered = False
 
     def update(self,surface):
-        """Update needs to be called every frame in the main loop."""
         color = self.color
         text = self.text
         self.check_hover()

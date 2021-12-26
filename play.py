@@ -14,31 +14,21 @@ board = Board(SIZE)  # 实例化board对象，传递参数size = 4
 
 def btnBase():
     print("Start Base 2048")
+    tip = 0
     while not board.over():
         clock.tick(60)
-        GameState = base.start_base_2048(board, buttonGroup)
-        showAll(board, button = buttonGroup)
+        GameState, tip = base.start_base_2048(board, buttonGroup, extip = tip)
+        showAll(board, button = buttonGroup, operation = tip)
         if GameState:
             break
     if not GameState:
         print("游戏结束")
-        pygame.quit()
         pygame.time.delay(2000)
-
+        pygame.quit()
+        
 def btnTip():
-    print("Start Tip 2048")
-    tip = 4 # 初始化为空
-    while not board.over():
-        clock.tick(60)
-        tip, GameState= tip2048.tip_2048(board, tip, buttonGroup)
-        showAll(board, operation = tip, button = buttonGroup)
-        if GameState:
-            break
-    if not GameState:
-        print("游戏结束")
-        pygame.quit()
-        pygame.time.delay(2000)
-
+    tip = tip2048.tip_2048(board)
+    return tip
 
 def btnAI():
     print("Start AI 2048")
@@ -51,9 +41,9 @@ def btnAI():
     print("游戏结束")
     # TODO 增加结束界面
     if not GameState:
-        pygame.quit()
         pygame.time.delay(2000)
-
+        pygame.quit()
+        
 def btnNew():
     print("Please choose your new mode")
     board.__init__(SIZE)
@@ -81,4 +71,5 @@ def play():
             showAll(board, button = buttonGroup)
             
 if __name__ == '__main__':
+    pygame.init()
     play()
