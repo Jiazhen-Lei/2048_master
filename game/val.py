@@ -21,7 +21,7 @@ def evaluation(map, score=0):
     scoreWeight = 0
 
     result = [disWeight*dis_weight(map), smoothWeight * smothness(map), mono2Weight *
-              monotonicity(map), emptyWeight*math.log(empty_num(map)), maxWeight*max_num(map), scoreWeight*score]
+              monotonicity(map), emptyWeight*math.log(empty_num(map)), maxWeight*maxAndSubMax(map), scoreWeight*score]
     return result
 
 
@@ -60,27 +60,39 @@ def max_num(map):
                 max_num = map[i][j]
     return max_num
 
+
+def maxAndSubMax(map):
+    max_num = 0
+    subMaxNum = 0
+    for i in range(4):
+        for j in range(4):
+            if max_num < map[i][j]:
+                subMaxNum = max_num
+                max_num = map[i][j]
+    return subMaxNum/3+max_num*2/3
+
+
 def smothness(map):
     lubricity = 0
     for i in range(4):
         for j in range(4):
-            if map[i][j]!=0:
+            if map[i][j] != 0:
                 if i >= 1:
                     # 左边减去该值
                     lubricity -= abs(math.log2(map[i-1]
-                                    [j]+1) - math.log2(map[i][j]+1))
+                                               [j]+1) - math.log2(map[i][j]+1))
                 if i < 3:
                     # 右边减去该值
                     lubricity -= abs(math.log2(map[i+1]
-                                    [j]+1) - math.log2(map[i][j]+1))
+                                               [j]+1) - math.log2(map[i][j]+1))
                 if j > 0:
                     # 上面减去该值
                     lubricity -= abs(math.log2(map[i]
-                                    [j-1]+1) - math.log2(map[i][j]+1))
+                                               [j-1]+1) - math.log2(map[i][j]+1))
                 if j < 3:
                     # 下面减去该值
                     lubricity -= abs(math.log2(map[i]
-                                    [j+1]+1) - math.log2(map[i][j]+1))
+                                               [j+1]+1) - math.log2(map[i][j]+1))
     return lubricity
 
 
