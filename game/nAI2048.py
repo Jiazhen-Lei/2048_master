@@ -209,41 +209,23 @@ def dfs(board: Board, now_step, limit_step):
 
 lastTime = int(time.time()*1000)
 
-
-def AI_2048(board: Board, gap=50, noGame=False):
+def AI_2048(board: Board, button, gap=50):
     global lastTime
+    GameState = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()  # 直接退出
+        button[0].check_event(event)
+        button[1].check_event(event)
+        button[2].check_event(event)
+        GameState = button[3].check_event(event)
+
     if int(time.time()*1000) - lastTime > gap:
         lastTime = int(time.time()*1000)
-        if not noGame:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()  # 直接退出
-                elif MOUSEBUTTONDOWN == event.type:
-                    pressed_array = pygame.mouse.get_pressed()
-                    if pressed_array[0] == 1:  # 左键被按下
-                        pos = pygame.mouse.get_pos()
-                        mouse_x = pos[0]  # x坐标
-                        mouse_y = pos[1]  # y坐标
-                        if 280 < mouse_x < 350 and 90 < mouse_y < 130:
-                            showBotton(4)
-                            pygame.display.update()
-                            return False
-
-                elif MOUSEBUTTONUP == event.type:
-                    pos = pygame.mouse.get_pos()
-                    mouse_x = pos[0]  # x坐标
-                    mouse_y = pos[1]  # y坐标
-                    if 280 < mouse_x < 350 and 90 < mouse_y < 130:
-                        print("Please choose your new mode")
-                        board.__init__(SIZE)
-                        showAll(board)
-                        return True
-
+ 
         now = board
-        # operation, best_val, can_move = dfs(now, 0, search_step)
         operation = getBestMove(now)
 
-        # board.mapPrint()
         if operation == 0:
             board.move_up()
             if(board.changed):
@@ -261,4 +243,5 @@ def AI_2048(board: Board, gap=50, noGame=False):
             if(board.changed):
                 board.add()  # 添加一个新数
             # time.sleep(0.1)
-        return False  # 不需要重启
+    
+    return GameState

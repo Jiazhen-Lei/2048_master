@@ -13,7 +13,13 @@ def index2pixel(indexPos):
         return (indexPos[0]*Pixel, (indexPos[1]+2)*Pixel)
 
 
-def showBotton(state):
+def showBotton(button):
+    button[0].update(screen_display)
+    button[1].update(screen_display)
+    button[2].update(screen_display)
+    button[3].update(screen_display)
+    
+    '''
     # 虚拟按钮显示
     if state == 1:
         screen_display.blit(button_block,(10,90))
@@ -52,6 +58,7 @@ def showBotton(state):
     board_word = newgame_word.get_rect()  # 位置
     board_word.center = (315, Pixel+20)  # 居中显示
     screen_display.blit(newgame_word, board_word)  # 显示
+    '''
 
 def showOhters():
     # 2048显示
@@ -162,13 +169,10 @@ def showAll(board: Board, button, operation = 4):
         showBlock(pos, num)
 
     showScore(board)
-    # showBotton(False)
+    showBotton(button)
     showOhters()
     showTip(operation)
-    button[0].update(screen_display)
-    button[1].update(screen_display)
-    button[2].update(screen_display)
-    button[3].update(screen_display)
+
 
     pygame.display.update()  # 更新显示
 

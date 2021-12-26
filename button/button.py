@@ -48,18 +48,21 @@ class Button(object):
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
             self.on_click(event)
         elif event.type == pg.MOUSEBUTTONUP and event.button == 1:
-            self.on_release(event)
+            return self.on_release(event)
 
     def on_click(self,event):
         if self.rect.collidepoint(event.pos):
             self.clicked = True
             if not self.call_on_release:
-                self.function()
+                return self.function()
+        else:
+            return  False
 
     def on_release(self,event):
         if self.clicked and self.call_on_release:
-            self.function()
-        self.clicked = False
+            self.clicked = False
+            return self.function()
+        
 
     def check_hover(self):
         if self.rect.collidepoint(pg.mouse.get_pos()):
