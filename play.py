@@ -88,7 +88,7 @@ def play():
                     print("Start AI 2048")
                     while not board.over():
                         clock.tick(60)
-                        GameState = AI2048.AI_2048(board, 1000) #第二个参数调整AI快慢
+                        GameState = AI2048.AI_2048(board, 1) #第二个参数调整AI快慢
                         showAll(board)
                         if GameState:
                             break
