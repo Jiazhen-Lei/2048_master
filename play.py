@@ -23,11 +23,14 @@ def btnBase():
         if GameState:
             break
     if not GameState:
-        print("游戏结束")
+        tip = 5
         failSound()
-        pygame.time.delay(2000)
-        pygame.quit()
-        
+        showAll(board, button = buttonGroup, operation = tip)
+        while not GameState: 
+            GameState, tip = base.start_base_2048(board, buttonGroup, extip = tip)
+            showAll(board, button = buttonGroup, operation = tip)
+            if GameState:
+                break
 def btnTip():
     tip = tip2048.tip_2048(board)
     return tip
@@ -36,7 +39,7 @@ def btnAI():
     print("Start AI 2048")
     while not board.over():
         clock.tick(60)
-        GameState = AI2048.AI_2048(board, buttonGroup, 1000) #第二个参数调整AI快慢
+        GameState = AI2048.AI_2048(board, buttonGroup, 10) #第二个参数调整AI快慢
         showAll(board, button = buttonGroup)
         if GameState:
             break

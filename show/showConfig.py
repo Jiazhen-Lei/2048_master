@@ -41,7 +41,8 @@ tipWordMap = [('Tip:'), # 空
               ('Tip:UP'),  # 向上
               ('Tip:DOWN'), # 向下
               ('Tip:LEFT'), # 向左
-              ('Tip:RIGHT')]# 向右
+              ('Tip:RIGHT'),
+              ('Tip:GAME OVER!!!')]# 向右
               
 # 13个Suface实例块，略小于单元块大小，剩余的部分通过背景色实现边框填充
 block_display = [pygame.Surface((Pixel-5, Pixel-5)) for i in range(13)]
