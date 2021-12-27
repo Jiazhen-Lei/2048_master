@@ -133,7 +133,6 @@ def showAll(board: Board, button, operation = 0):
     showOhters()
     showTip(operation)
 
-
     pygame.display.update()  # 更新显示
 
     return len(slideList)

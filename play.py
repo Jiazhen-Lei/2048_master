@@ -8,6 +8,7 @@ import game.ntip2048 as tip2048
 from show.show import *
 from show.showConfig import *
 from button import Button
+from sound.sound import *
 
 clock = pygame.time.Clock()  # 系统时间
 board = Board(SIZE)  # 实例化board对象，传递参数size = 4
@@ -23,6 +24,7 @@ def btnBase():
             break
     if not GameState:
         print("游戏结束")
+        failSound()
         pygame.time.delay(2000)
         pygame.quit()
         
@@ -39,6 +41,7 @@ def btnAI():
         if GameState:
             break
     print("游戏结束")
+    failSound()
     # TODO 增加结束界面
     if not GameState:
         pygame.time.delay(2000)

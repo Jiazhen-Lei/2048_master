@@ -5,6 +5,7 @@ from board import *
 from pygame.locals import *
 from show.show import *
 import time
+from sound.sound import *
 
 search_step = 3
 size_x = size_y = SIZE = 4
@@ -228,18 +229,22 @@ def AI_2048(board: Board, button, gap=50):
 
         if operation == 0:
             board.move_up()
+            slideSound()
             if(board.changed):
                 board.add()  # 添加一个新数
         elif operation == 1:
             board.move_down()
+            slideSound()
             if(board.changed):
                 board.add()  # 添加一个新数
         elif operation == 2:
             board.move_left()
+            slideSound()
             if(board.changed):
                 board.add()  # 添加一个新数
         elif operation == 3:
             board.move_right()
+            slideSound()
             if(board.changed):
                 board.add()  # 添加一个新数
             # time.sleep(0.1)

@@ -61,11 +61,12 @@ class Button(object):
     def on_release(self,event,tip = 0):
         if self.clicked and self.call_on_release:
             self.clicked = False
+            if self.click_sound:
+                    self.click_sound.play()
             return self.function()
         else:
             return tip
         
-
     def check_hover(self):
         if self.rect.collidepoint(pg.mouse.get_pos()):
             if not self.hovered:

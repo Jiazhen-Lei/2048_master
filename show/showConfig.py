@@ -29,12 +29,13 @@ myColorMap = [(203, 193, 182),  # 0
 
 buttonColorMap = [(203, 193, 182),  # released
                   (239, 229, 219),  # hovor
-                  (201, 163, 35)]   # clicked
+                  (242, 179, 122)]   # clicked
 
 #The button can be styled in a manner similar to CSS.
 BUTTON_STYLE = {"hover_color" : buttonColorMap[1],
                 "clicked_color" : buttonColorMap[2],
-                "hover_sound" : pygame.mixer.Sound("./button/sound.wav")}
+                "hover_sound" : pygame.mixer.Sound("./sound/sound.wav"),
+                "click_sound" : pygame.mixer.Sound("./sound/clicked.wav")}
 
 tipWordMap = [('Tip:'), # 空
               ('Tip:UP'),  # 向上
