@@ -1,6 +1,6 @@
 from pygame.locals import *
 from board.board import *
-from game.nAI2048 import *
+from game.AI2048 import *
 
 def tip_2048(board, gap=50):
     global lastTime

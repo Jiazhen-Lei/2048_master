@@ -213,14 +213,6 @@ lastTime = int(time.time()*1000)
 def AI_2048(board: Board, button, gap=50):
     global lastTime
     GameState = False
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()  # 直接退出
-        button[0].check_event(event)
-        button[1].check_event(event)
-        button[2].check_event(event)
-        GameState = button[3].check_event(event)
-
     if int(time.time()*1000) - lastTime > gap:
         lastTime = int(time.time()*1000)
  
@@ -249,4 +241,12 @@ def AI_2048(board: Board, button, gap=50):
                 board.add()  # 添加一个新数
             # time.sleep(0.1)
     
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()  # 直接退出
+        button[0].check_event(event)
+        button[1].check_event(event)
+        button[2].check_event(event)
+        GameState = button[3].check_event(event)
+
     return GameState
