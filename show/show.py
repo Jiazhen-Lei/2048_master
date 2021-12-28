@@ -60,8 +60,12 @@ def showTip(operation):
 def showNum(board_word_data, disPos):
     """块数值"""
     if board_word_data != 0:
-        board_word = board_front.render(
-            str(board_word_data), True, my_word_color)  # 参数：内容，是否抗锯齿，颜色
+        if board_word_data == 2 or board_word_data ==4:
+            board_word = board_front.render(
+                str(board_word_data), True, numColorMap[0])  # 参数：内容，是否抗锯齿，颜色
+        else:
+            board_word = board_front.render(
+                str(board_word_data), True, numColorMap[1])  # 参数：内容，是否抗锯齿，颜色
         board_rect = board_word.get_rect()  # 位置
         board_rect.center = (disPos[0]+Pixel/2, disPos[1]+Pixel/2)  # 居中显示
         screen_display.blit(board_word, board_rect)  # 显示
