@@ -4,6 +4,7 @@ import numpy as np
 from animate.animate import anime
 
 
+# block类，主要为了更方便的实现动画，可以存储上一个位置和动画类型，从而方便生成动画
 class Block:
     def __init__(self, num, pos, animeType=0) -> None:
         self.num = num
@@ -13,7 +14,7 @@ class Block:
         self.anotherAnimate = anime((0, 0), (0, 0), 0)
         self.animeType = animeType
 
-    def addAnimate(self, startPos, endPos, totalTime, function=None):
+    def addAnimate(self, startPos, endPos, totalTime, function=None):  # 添加动画，使用动画类进行操作
         if self.animate.startPos == startPos and self.animate.endPos == endPos:
             return
         else:
@@ -22,6 +23,7 @@ class Block:
             else:
                 self.animate = anime(startPos, endPos, totalTime, function)
 
+    # 如果是合并类型，则需要给已经消失的块也添加一个动画
     def addAnotherAnimate(self, startPos, endPos, totalTime, function=None):
         if self.anotherAnimate.startPos == startPos and self.anotherAnimate.endPos == endPos:
             return
@@ -35,7 +37,8 @@ class Block:
 # TODO 将Broad改为任意矩形，将lineProcess归入Broad类
 
 
-def lineProcess(line):  # 处理一行
+# 处理一行，这里的处理方式可能不是最优，但是对于实现动画是最方便的
+def lineProcess(line):
     i = 0
     score = 0
     changed = False
@@ -73,6 +76,7 @@ def lineProcess(line):  # 处理一行
     return line, changed, score
 
 
+# board类，用于对棋盘进行各种处理，移动，添加，删除等，并添加了一些方便操作的函数
 class Board:
     def __init__(self, size, map=None, score=0):
         self.size = size
@@ -123,14 +127,14 @@ class Board:
         else:
             return False
 
-    def add_xy(self, x, y, val):
+    def add_xy(self, x, y, val):  # 在指定位置放置指定数字，用于AI
         if self.map[x][y].num == 0:
             self.map[x][y] = Block(val, [x, y], 3)
             return True
         else:
             return False
 
-    def remove_xy(self, x, y):
+    def remove_xy(self, x, y):  # 删除指定位置的数字，用于AI
         self.map[x][y] = Block(0, [x, y])
 
     def move(self, dir):
@@ -249,7 +253,7 @@ class Board:
         # print("游戏结束")
         return True
 
-    def getAvailableCells(self):
+    def getAvailableCells(self):  # 返回所有的可以放数字的位置
         AvCells = []
         numMap = self.numMap()
         for i in range(self.size):
