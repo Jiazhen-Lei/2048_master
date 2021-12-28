@@ -11,25 +11,7 @@ search_step = 3
 size_x = size_y = SIZE = 4
 
 
-def worst_val(map):
-    new = map.numMap()
-    ansx = ansy = ansk = 0
-    worst = [1000000]
-
-    for i in range(size_x):
-        for j in range(size_y):
-            for k in range(1, 3):
-                if new[i][j] > 0:
-                    continue
-                new[i][j] = k*2
-                now_val = val.evaluation(new, map.score)
-                if sum(now_val) < sum(worst):
-                    worst, ansx, ansy, ansk = now_val, i, j, k*2
-                new[i][j] = 0
-
-    return worst, ansx, ansy, ansk
-
-
+# 定义搜索结果类，用于方便处理返回值
 class searchResult:
     def __init__(self, move=-1, score=0, positions=0, cutoffs=0) -> None:
         self.move = move
@@ -38,15 +20,17 @@ class searchResult:
         self.score = score
 
 
+# 四个方向向量，方便遍历时使用
 vectors = [[0, 1], [1, 0], [-1, 0], [0, -1]]
 
 
+# 用于计算islands的类，这个不容易写成函数，直接写成类了
 class map:
     def __init__(self, numMap: list) -> None:
         self.map = numMap
         self.marked = []
 
-    def islands(self):
+    def islands(self):  # 计算分散度，越分散得分越高
         islandsMark = 0
         self.marked = [[True]*4]*4
         for i in range(4):
@@ -68,43 +52,57 @@ class map:
                 self.mark(x+vector[0], y+vector[1], value)
 
 
+#
 def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult:
+    """
+    搜索最优移动方向
+    功能:
+        使用minmax搜索，并使用alpha，beta剪枝减少搜索次数
+    参数:
+        board:实例board界面
+        depth:搜索深度
+        alpha,beta:剪枝所需的参数
+        positions,cutoffs:用于记录位置与剪枝次数
+    返回值:
+        searchResult:包含各种参数,详见searchResult类
+    """
     bestScore = 0
     bestMove = -1
     result = searchResult()
 
-    if plyaerTurn:
-        bestScore = alpha
-        for direction in range(4):
-            newBoard = Board(4, thisBoard.map)
-            _, changed, _ = newBoard.move(direction)
-            if changed:
-                positions += 1
-                if depth == 0:
+    if plyaerTurn:  # max轮
+        bestScore = alpha  # 最高分为alpha
+        for direction in range(4):  # 四个方向分别进行遍历
+            newBoard = Board(4, thisBoard.map)  # 新建一个棋盘防止影响到正式游戏
+            _, changed, _ = newBoard.move(direction)  # 相对应方向移动
+            if changed:  # 如果这个方向可以移动
+                positions += 1  # positions自增
+                if depth == 0:  # 如果已经搜索到最底层了
                     result.move = direction
-                    result.score = sum(val.evaluation(newBoard.numMap()))
-                else:
+                    result.score = sum(val.evaluation(
+                        newBoard.numMap()))  # 返回当前局面的评价值
+                else:  # 没有到达最深
                     result = search(
-                        newBoard, depth-1, bestScore, beta, positions, cutoffs, False)
-                    if result.score > 9900:
+                        newBoard, depth-1, bestScore, beta, positions, cutoffs, False)  # 进行min轮，即让AI下出对局面最不利的一步
+                    if result.score > 9900:  # 如果得分已经很高则适当减少
                         result.score -= 1
                     positions = result.positions
-                    cutoffs = result.cutoffs
+                    cutoffs = result.cutoffs  # 将返回值进行处理
 
                 if result.score > bestScore:
                     bestScore = result.score
                     bestMove = direction
-                if bestScore > beta:
+                if bestScore > beta:  # 如果最高值大于beta，则已经证明该走法优于前面的最优，则本深度下后面不用继续计算。
                     cutoffs += 1
                     return searchResult(bestMove, beta, positions, cutoffs)
-    else:
+    else:  # min轮，让AI走出最差一步
         bestScore = beta
         newBoard = Board(4, thisBoard.map)
         score_2 = []
         score_4 = []
         worstSituation = []
         cells = newBoard.getAvailableCells()
-        for value in [2, 4]:
+        for value in [2, 4]:  # 生成可能的所有情况，并进行评估
             for i in range(len(cells)):
                 if not newBoard.add_xy(cells[i][0], cells[i][1], value):
                     print("!!!!")
@@ -117,27 +115,27 @@ def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn:
                                                   )+map(newBoard.numMap()).islands())
                 newBoard.remove_xy(cells[i][0], cells[i][1])
 
-        maxScore = max(max(score_2), max(score_4))
-        for i in score_2:
+        maxScore = max(max(score_2), max(score_4))  # 找到最差的情况
+        for i in score_2:  # 最差的情况可能不止一种，所以遍历一遍防止遗漏
             if i == maxScore:
                 worstSituation.append([cells[score_2.index(i)], 2])
         for i in score_4:
             if i == maxScore:
                 worstSituation.append([cells[score_4.index(i)], 4])
 
-        for situation in worstSituation:
+        for situation in worstSituation:  # 遍历所有最差情况
             nnewBoard = Board(4, thisBoard.map)
             nnewBoard.add_xy(situation[0][0], situation[0][1], situation[1])
             positions += 1
             result = search(nnewBoard, depth, alpha,
-                            bestScore, positions, cutoffs, True)
+                            bestScore, positions, cutoffs, True)  # 进一步搜索
             positions = result.positions
             cutoffs = result.cutoffs
 
             if result.score < bestScore:
                 bestScore = result.score
 
-            if bestScore < alpha:
+            if bestScore < alpha:  # 剪枝同理
                 cutoffs += 1
                 return searchResult(-1, alpha, positions, cutoffs)
 
@@ -145,70 +143,23 @@ def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn:
 
 
 def getBestMove(board: Board, depth=3):
+    """
+    搜索最优移动方向
+    功能:
+        调用search,并给出参数
+    参数:
+        board:实例board界面
+        depth:搜索深度
+    返回值:
+        最佳动作
+    """
     newBest = search(board, depth, -1000000, 1000000, 0, 0, True)
     return newBest.move
 
 
-def dfs(board: Board, now_step, limit_step):
-    can_move = [True for i in range(4)]
-    move = [board for i in range(4)]
-    secondBest = []
-    if now_step == 0:
-        # if False:
-        new = Board(SIZE, board.map)
-        move[0], can_move[0], _ = new.move_up()
-        new = Board(SIZE, board.map)
-        move[1], can_move[1], _ = new.move_down()
-        new = Board(SIZE, board.map)
-        move[2], can_move[2], _ = new.move_left()
-        new = Board(SIZE, board.map)
-        move[3], can_move[3], _ = new.move_right()
-    else:
-        new = Board(SIZE, board.map, board.score)
-        move[0], can_move[0], _ = new.move_up()
-        new = Board(SIZE, board.map, board.score)
-        move[1], can_move[1], _ = new.move_down()
-        new = Board(SIZE, board.map, board.score)
-        move[2], can_move[2], _ = new.move_left()
-        new = Board(SIZE, board.map, board.score)
-        move[3], can_move[3], _ = new.move_right()
-    best_move = -1
-    best_val = [-1]
-    if now_step == limit_step:
-        for i in range(4):
-            if not can_move[i]:
-                continue
-            val_now, x, y, k = worst_val(move[i])
-            val_now = [0] if sum(val_now) <= 0 else val_now
-            if sum(val_now) > sum(best_val):
-                best_move = i
-                best_val = val_now
-    else:
-        for i in range(4):
-            if not can_move[i]:
-                continue
-            val_now, x, y, k = worst_val(move[i])
-            move[i].add_xy(x, y, k)
-            now_move, val_now, blank_move = dfs(
-                move[i], now_step+1, limit_step)
-            # val_now = max(0, val_now)
-            val_now = [0] if sum(val_now) <= 0 else val_now
-            if sum(val_now) > sum(best_val):
-                best_move = i
-                secondBest = best_val
-                best_val = val_now
-    # print(now_step,best_move,best_val)
-    # print(board.map)
-    if now_step == 0:
-        if len(best_val) == len(secondBest):
-            print('             secondWin:', [
-                best_val[i]-secondBest[i] for i in range(len(best_val))])
-        print('operation=', best_move, 'best_val=', best_val)
-        print(can_move)
-    return best_move, best_val, can_move
-
-
 lastTime = int(time.time()*1000)
+
+
 def AI_2048(board: Board, button, gap=50):
     """
     AI2048模式
@@ -225,9 +176,9 @@ def AI_2048(board: Board, button, gap=50):
     GameState = False
     if int(time.time()*1000) - lastTime > gap:
         lastTime = int(time.time()*1000)
- 
+
         now = board
-        operation = getBestMove(now) #调用AI算法
+        operation = getBestMove(now)  # 调用AI算法
 
         if operation == 0:
             board.move_up()
