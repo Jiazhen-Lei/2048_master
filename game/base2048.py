@@ -1,6 +1,5 @@
 import pygame
 from pygame.locals import *
-import time
 from show.show import *
 from board.board import *
 from sound.sound import *

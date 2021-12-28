@@ -12,7 +12,7 @@ designer_y = 6.5 # 定义设计者y高度
 PIXEL = 90 # 单元快像素个数
 SIZE = 4 # 块个数
 
-# 棋盘颜色设置 #
+# 棋盘块颜色设置 #
 myColorMap = [(203, 193, 182),  # 0
               (239, 229, 219),  # 2
               (238, 225, 201),  # 4
@@ -47,8 +47,8 @@ tipWordMap = [('Tip:'), # 空
               ('Tip:UP'),  # 向上
               ('Tip:DOWN'), # 向下
               ('Tip:LEFT'), # 向左
-              ('Tip:RIGHT'),
-              ('Tip:GAME OVER!!!')]# 向右
+              ('Tip:RIGHT'), # 向右
+              ('Tip:GAME OVER!!!')]
               
 # 13个Suface实例块，略小于单元块大小，剩余的部分通过背景色实现边框填充
 block_display = [pygame.Surface((Pixel-5, Pixel-5)) for i in range(13)]
