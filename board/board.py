@@ -1,8 +1,6 @@
 from os import access
 import random
-
 import numpy as np
-
 from animate.animate import anime
 
 

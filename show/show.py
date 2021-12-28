@@ -2,7 +2,6 @@ from numpy.core.shape_base import block
 import pygame
 import math
 from board import *
-
 from show.showConfig import *
 
 
@@ -14,6 +13,7 @@ def index2pixel(indexPos):
 
 
 def showBotton(button):
+    """按键显示"""
     button[0].update(screen_display)
     button[1].update(screen_display)
     button[2].update(screen_display)
@@ -21,12 +21,14 @@ def showBotton(button):
 
 
 def showOhters():
-    # 2048显示
+    """其他显示"""
+     # 左上角‘2048’显示 #
     _2048_word = my_2048_front.render('2048', True, my_word_color)
     board_word = _2048_word.get_rect()  # 位置
     board_word.center = (Pixel, Pixel/2)  # 居中显示
     screen_display.blit(_2048_word, board_word)  # 显示
 
+    # 设计者显示 #
     designer_word = designer_front.render(
         ('Designer:雷佳臻 赵广宇 王琪源 蒋晓天 何旭东'), True, my_word_color)
     board_word = designer_word.get_rect()  # 位置
@@ -35,7 +37,7 @@ def showOhters():
 
 
 def showScore(board: Board):
-    # 分数显示
+    """分数显示"""
     screen_display.blit(score_get_block, (Pixel * 3-20, 10))  # 显示块位置
     if board.over() == True:  # 游戏结束
         score_word = score_front.render('Game over', True, my_word_color)
@@ -47,7 +49,7 @@ def showScore(board: Board):
     screen_display.blit(score_word, board_word)  # 显示
 
 def showTip(operation):
-    
+    """提示显示"""
     tip_word = tip_front.render(
         tipWordMap[operation], True, my_word_color)
     board_word = tip_word.get_rect()  # 位置
@@ -56,7 +58,7 @@ def showTip(operation):
 
 
 def showNum(board_word_data, disPos):
-    # 数值显示
+    """块数值"""
     if board_word_data != 0:
         board_word = board_front.render(
             str(board_word_data), True, my_word_color)  # 参数：内容，是否抗锯齿，颜色
@@ -66,6 +68,7 @@ def showNum(board_word_data, disPos):
 
 
 def showBlock(pos, num=0):
+    """块"""
     screen_display.blit(
         block_display[0 if num == 0 else min(int(math.log(num, 2)), 12)], pos)
     showNum(num, pos)
@@ -101,7 +104,7 @@ def slideProce(thisBlock: Block, posIndex, animateList: list):
 
 
 def showAll(board: Board, button, operation = 0):
-
+    """显示所有"""
     screen_display.blit(show_display[0], (0, 0))
     screen_display.blit(show_display[1], (0, Pixel * 2-5))
     screen_display.blit(show_display[2], (0, Pixel * 6))
@@ -128,10 +131,10 @@ def showAll(board: Board, button, operation = 0):
     for [pos, num] in slideList:
         showBlock(pos, num)
 
-    showScore(board)
-    showBotton(button)
-    showOhters()
-    showTip(operation)
+    showScore(board) # 显示得分
+    showBotton(button) # 显示按键
+    showOhters() # 显示其他
+    showTip(operation) # 显示提示
 
     pygame.display.update()  # 更新显示
 

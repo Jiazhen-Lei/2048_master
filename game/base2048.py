@@ -7,6 +7,18 @@ from sound.sound import *
 
 # 基础2048
 def start_base_2048(board: Board, button, extip):
+    """
+    Base2048模式
+    功能:
+        根据pygame事件，进行游戏的上下左右移动和按键检测
+    参数:
+        board:实例board界面
+        button:按键对象列表
+        extip:上一次tip索引
+    返回值:
+        GameState:默认为False，当判断New按键操作时为True重置board
+        tip:本次tip索引
+    """
     GameState = False
     tip = extip
     for event in pygame.event.get():

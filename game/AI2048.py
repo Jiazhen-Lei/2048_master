@@ -209,15 +209,25 @@ def dfs(board: Board, now_step, limit_step):
 
 
 lastTime = int(time.time()*1000)
-
 def AI_2048(board: Board, button, gap=50):
+    """
+    AI2048模式
+    功能:
+        根据pygame事件，进行AI游戏的上下左右移动和按键检测
+    参数:
+        board:实例board界面
+        button:按键对象列表
+        gap:AI算法速度，默认50
+    返回值:
+        GameState:默认为False，当判断New按键操作时为True重置board
+    """
     global lastTime
     GameState = False
     if int(time.time()*1000) - lastTime > gap:
         lastTime = int(time.time()*1000)
  
         now = board
-        operation = getBestMove(now)
+        operation = getBestMove(now) #调用AI算法
 
         if operation == 0:
             board.move_up()
@@ -239,8 +249,8 @@ def AI_2048(board: Board, button, gap=50):
             slideSound()
             if(board.changed):
                 board.add()  # 添加一个新数
-            # time.sleep(0.1)
-    
+
+    # 按键事件判断 #
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()  # 直接退出
