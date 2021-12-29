@@ -2,6 +2,7 @@ from pygame.locals import *
 import pygame
 from show.show import *
 from action import *
+from game.AI2048 import testAIMap
 
 def play():
     showAll(board, button = buttonGroup)  # 显示
@@ -18,5 +19,6 @@ def play():
             showAll(board, button = buttonGroup) # 显示
 
 if __name__ == '__main__':
+    
     pygame.display.set_caption("2048") # 设置窗口标题
     play() # 开始游戏

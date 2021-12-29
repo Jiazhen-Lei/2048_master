@@ -120,7 +120,7 @@ class Board:
 
         if len(tempList) > 0:
             [r, c] = random.choice(tempList)
-            x = random.choice([2, 2, 2, 4])  # 随机产生一个 2 或 4
+            x = random.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])  # 随机产生一个 2 或 4
             self.map[r][c] = Block(x, [r, c], 3)  # 设置该坐标为随机值
             return True
         else:

@@ -21,7 +21,7 @@ def evaluation(map, score=0):
     scoreWeight = 0
 
     result = [disWeight*dis_weight(map), smoothWeight * smothness(map), mono2Weight *
-              monotonicity(map), emptyWeight*math.log(empty_num(map)), maxWeight*maxAndSubMax(map), scoreWeight*score]
+              monotonicity(map), emptyWeight*math.log(empty_num(map)), maxWeight*max_num(map), scoreWeight*score]
     return result
 
 

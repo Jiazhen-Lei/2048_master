@@ -6,6 +6,7 @@ from pygame.locals import *
 from show.show import *
 import time
 from sound.sound import *
+from game.map import AIMap
 
 search_step = 3
 size_x = size_y = SIZE = 4
@@ -24,36 +25,36 @@ class searchResult:
 vectors = [[0, 1], [1, 0], [-1, 0], [0, -1]]
 
 
-# 用于计算islands的类，这个不容易写成函数，直接写成类了
-class map:
-    def __init__(self, numMap: list) -> None:
-        self.map = numMap
-        self.marked = []
+# # 用于计算islands的类，这个不容易写成函数，直接写成类了
+# class map:
+#     def __init__(self, numMap: list) -> None:
+#         self.map = numMap
+#         self.marked = []
 
-    def islands(self):  # 计算分散度，越分散得分越高
-        islandsMark = 0
-        self.marked = [[True]*4]*4
-        for i in range(4):
-            for j in range(4):
-                if self.map[i][j] != 0:
-                    self.marked[i][j] = False
-        for i in range(4):
-            for j in range(4):
-                if self.map[i][j] != 0 and not self.marked[i][j]:
-                    islandsMark += 1
-                    self.mark(i, j, self.map[i][j])
-        return islandsMark
+#     def islands(self):  # 计算分散度，越分散得分越高
+#         islandsMark = 0
+#         self.marked = [[True]*4]*4
+#         for i in range(4):
+#             for j in range(4):
+#                 if self.map[i][j] != 0:
+#                     self.marked[i][j] = False
+#         for i in range(4):
+#             for j in range(4):
+#                 if self.map[i][j] != 0 and not self.marked[i][j]:
+#                     islandsMark += 1
+#                     self.mark(i, j, self.map[i][j])
+#         return islandsMark
 
-    def mark(self, x, y, value):
-        if x >= 0 and x <= 3 and y >= 0 and y <= 3 and self.map[x][y] != 0 and self.map[x][y] == value and not self.marked[x][y]:
-            self.marked[x][y] = True
-            for direction in range(4):
-                vector = vectors[direction]
-                self.mark(x+vector[0], y+vector[1], value)
+#     def mark(self, x, y, value):
+#         if x >= 0 and x <= 3 and y >= 0 and y <= 3 and self.map[x][y] != 0 and self.map[x][y] == value and not self.marked[x][y]:
+#             self.marked[x][y] = True
+#             for direction in range(4):
+#                 vector = vectors[direction]
+#                 self.mark(x+vector[0], y+vector[1], value)
 
 
 #
-def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult:
+def search(thisBoard: AIMap, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult:
     """
     搜索最优移动方向
     功能:
@@ -73,14 +74,14 @@ def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn:
     if plyaerTurn:  # max轮
         bestScore = alpha  # 最高分为alpha
         for direction in range(4):  # 四个方向分别进行遍历
-            newBoard = Board(4, thisBoard.map)  # 新建一个棋盘防止影响到正式游戏
-            _, changed, _ = newBoard.move(direction)  # 相对应方向移动
+            newBoard = AIMap(4, thisBoard.map)  # 新建一个棋盘防止影响到正式游戏
+            changed = newBoard.move(direction)  # 相对应方向移动
             if changed:  # 如果这个方向可以移动
                 positions += 1  # positions自增
                 if depth == 0:  # 如果已经搜索到最底层了
                     result.move = direction
                     result.score = sum(val.evaluation(
-                        newBoard.numMap()))  # 返回当前局面的评价值
+                        newBoard.map))  # 返回当前局面的评价值
                 else:  # 没有到达最深
                     result = search(
                         newBoard, depth-1, bestScore, beta, positions, cutoffs, False)  # 进行min轮，即让AI下出对局面最不利的一步
@@ -97,7 +98,7 @@ def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn:
                     return searchResult(bestMove, beta, positions, cutoffs)
     else:  # min轮，让AI走出最差一步
         bestScore = beta
-        newBoard = Board(4, thisBoard.map)
+        newBoard = AIMap(4, thisBoard.map)
         score_2 = []
         score_4 = []
         worstSituation = []
@@ -108,24 +109,28 @@ def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn:
                     print("!!!!")
                     input()
                 if value == 2:
-                    score_2.append(-val.smothness(newBoard.numMap()
-                                                  )+map(newBoard.numMap()).islands())
+                    score_2.append(-val.smothness(newBoard.map) +
+                                   newBoard.islands())
                 if value == 4:
-                    score_4.append(-val.smothness(newBoard.numMap()
-                                                  )+map(newBoard.numMap()).islands())
+                    score_4.append(-val.smothness(newBoard.map) +
+                                   newBoard.islands())
                 newBoard.remove_xy(cells[i][0], cells[i][1])
 
         maxScore = max(max(score_2), max(score_4))  # 找到最差的情况
-        for i in score_2:  # 最差的情况可能不止一种，所以遍历一遍防止遗漏
-            if i == maxScore:
-                worstSituation.append([cells[score_2.index(i)], 2])
-        for i in score_4:
-            if i == maxScore:
-                worstSituation.append([cells[score_4.index(i)], 4])
-
+        for i in range(len(score_2)):  # 最差的情况可能不止一种，所以遍历一遍防止遗漏
+            if score_2[i] == maxScore:
+                worstSituation.append([cells[i], 2])
+        for i in range(len(score_4)):
+            if score_4[i] == maxScore:
+                worstSituation.append([cells[i], 4])
         for situation in worstSituation:  # 遍历所有最差情况
-            nnewBoard = Board(4, thisBoard.map)
-            nnewBoard.add_xy(situation[0][0], situation[0][1], situation[1])
+            nnewBoard = AIMap(4, thisBoard.map)
+            # input()
+            if not nnewBoard.add_xy(situation[0][0], situation[0][1], situation[1]):
+                print('nnewBoard.map', nnewBoard.map)
+                print('newBoard.map', newBoard.map)
+                print(situation)
+                input()
             positions += 1
             result = search(nnewBoard, depth, alpha,
                             bestScore, positions, cutoffs, True)  # 进一步搜索
@@ -142,7 +147,7 @@ def search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn:
     return searchResult(bestMove, bestScore, positions, cutoffs)
 
 
-def getBestMove(board: Board, depth=3):
+def getBestMove(board: Board, depth=4):
     """
     搜索最优移动方向
     功能:
@@ -153,7 +158,8 @@ def getBestMove(board: Board, depth=3):
     返回值:
         最佳动作
     """
-    newBest = search(board, depth, -1000000, 1000000, 0, 0, True)
+    nAIMap = AIMap(4, board.numMap())
+    newBest = search(nAIMap, depth, -1000000, 1000000, 0, 0, True)
     return newBest.move
 
 
@@ -179,7 +185,7 @@ def AI_2048(board: Board, button, gap=50):
 
         now = board
         operation = getBestMove(now)  # 调用AI算法
-
+        print(operation)
         if operation == 0:
             board.move_up()
             slideSound()
@@ -201,6 +207,13 @@ def AI_2048(board: Board, button, gap=50):
             if(board.changed):
                 board.add()  # 添加一个新数
 
+        # elif operation == -1:
+        #     for i in range(4):
+        #         board.move(i)
+        #         if(board.changed):
+        #             board.add()  # 添加一个新数
+        #             break
+
     # 按键事件判断 #
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -211,3 +224,18 @@ def AI_2048(board: Board, button, gap=50):
         GameState = button[3].check_event(event)
 
     return GameState
+
+
+def testAIMap():
+    tempMap = Board(4)
+    while 1:
+        print(tempMap.numMap())
+        inDir = input()
+        if inDir == 'w':
+            tempMap.move_up()
+        elif inDir == 's':
+            tempMap.move_down()
+        elif inDir == 'a':
+            tempMap.move_left()
+        elif inDir == 'd':
+            tempMap.move_right()
