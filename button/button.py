@@ -29,6 +29,7 @@ class Button(object):
         self.render_text()
 
     def process_kwargs(self,kwargs):
+        """其他用户自定义设置"""
         settings = {"text" : None,
                     "font" : pg.font.Font(None,24),
                     "call_on_release" : True,
