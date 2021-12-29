@@ -24,35 +24,6 @@ class searchResult:
 # 四个方向向量，方便遍历时使用
 vectors = [[0, 1], [1, 0], [-1, 0], [0, -1]]
 
-
-# # 用于计算islands的类，这个不容易写成函数，直接写成类了
-# class map:
-#     def __init__(self, numMap: list) -> None:
-#         self.map = numMap
-#         self.marked = []
-
-#     def islands(self):  # 计算分散度，越分散得分越高
-#         islandsMark = 0
-#         self.marked = [[True]*4]*4
-#         for i in range(4):
-#             for j in range(4):
-#                 if self.map[i][j] != 0:
-#                     self.marked[i][j] = False
-#         for i in range(4):
-#             for j in range(4):
-#                 if self.map[i][j] != 0 and not self.marked[i][j]:
-#                     islandsMark += 1
-#                     self.mark(i, j, self.map[i][j])
-#         return islandsMark
-
-#     def mark(self, x, y, value):
-#         if x >= 0 and x <= 3 and y >= 0 and y <= 3 and self.map[x][y] != 0 and self.map[x][y] == value and not self.marked[x][y]:
-#             self.marked[x][y] = True
-#             for direction in range(4):
-#                 vector = vectors[direction]
-#                 self.mark(x+vector[0], y+vector[1], value)
-
-
 #
 def search(thisBoard: AIMap, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult:
     """
@@ -206,14 +177,7 @@ def AI_2048(board: Board, button, gap=50):
             slideSound()
             if(board.changed):
                 board.add()  # 添加一个新数
-
-        # elif operation == -1:
-        #     for i in range(4):
-        #         board.move(i)
-        #         if(board.changed):
-        #             board.add()  # 添加一个新数
-        #             break
-
+                
     # 按键事件判断 #
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
