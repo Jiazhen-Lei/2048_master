@@ -5,6 +5,7 @@ from button import Button
 from sound.sound import *
 from show.show import *
 from show.showConfig import *
+import show.showConfig as shc
 
 # 系统时间 #
 clock = pygame.time.Clock()
@@ -17,6 +18,7 @@ def btnBase():
     
     实现Base按键按下后的具体事件，即开启Base2048模式
     """
+    shc.animeFrame = 10
     print("Start Base 2048")
     tip = 0
     while not board.over():
@@ -55,9 +57,10 @@ def btnAI():
     实现AI按键按下后的具体事件，即开启AI2048模式
     """
     print("Start AI 2048")
+    shc.animeFrame = 1
     while not board.over():
         clock.tick(60) # fps
-        GameState = AI2048.AI_2048(board, buttonGroup, 10) #第二个参数调整AI快慢，10较快动画较卡顿，1000较慢，动画较流畅
+        GameState = AI2048.AI_2048(board, buttonGroup, 100) #第二个参数调整AI快慢，10较快动画较卡顿，1000较慢，动画较流畅
         showAll(board, button = buttonGroup) # 显示
         if GameState:
             break
