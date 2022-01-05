@@ -27,11 +27,16 @@ VScode
 ![结构图](https://user-images.githubusercontent.com/68833848/148180264-5e0875bc-ec91-49f5-9794-9c2bea5b4737.png)
 
 **各个函数功能关系：**
-	由于函数众多，我们仅对比较重要的函数进行说明,在play.py中，我们仅有一个play函数，没有参数输入，在其中我们显示画面并处理Button的点击，其余的逻辑均在button的响应中处理。
-	在逻辑处理部分，start_base_2048是基础模式的逻辑处理函数def start_base_2048(board: Board, button, extip)，其中board包含当前的棋盘信息，button包含当前的按钮信息，extip为当前的tip值，返回值为处理后游戏是否结束，以及用于显示的tip，同理AI_2048()与start_base_2048的参数传递相同。
-	AI的核心是search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult函数，其中thisBoard为当前棋盘局面；depth为当前搜索深度，在递归调用中不断减小，直到为0结束递归；alpha，beta，positions与cutoffs则是用于剪枝的部分，从而减少搜索次数，提高效率；plyaerTurn是在minmax搜索中用于区分最大值轮和最小值轮所需的。其返回值中包含了bestMove以及下次递归所需要的参数。
-	Board类则包含了各种对棋盘的操作函数，包括四个move以及添加和删除函数。 Button包含了按钮的逻辑。Animate包含了几种不同的平滑动画和对应的处理方式。具体的在功能实现中进一步阐明。
-	文件结构如下图。
+
+由于函数众多，我们仅对比较重要的函数进行说明,在play.py中，我们仅有一个play函数，没有参数输入，在其中我们显示画面并处理Button的点击，其余的逻辑均在button的响应中处理。
+
+在逻辑处理部分，start_base_2048是基础模式的逻辑处理函数def start_base_2048(board: Board, button, extip)，其中board包含当前的棋盘信息，button包含当前的按钮信息，extip为当前的tip值，返回值为处理后游戏是否结束，以及用于显示的tip，同理AI_2048()与start_base_2048的参数传递相同。
+
+AI的核心是search(thisBoard: Board, depth, alpha, beta, positions, cutoffs, plyaerTurn: bool) -> searchResult函数，其中thisBoard为当前棋盘局面；depth为当前搜索深度，在递归调用中不断减小，直到为0结束递归；alpha，beta，positions与cutoffs则是用于剪枝的部分，从而减少搜索次数，提高效率；plyaerTurn是在minmax搜索中用于区分最大值轮和最小值轮所需的。其返回值中包含了bestMove以及下次递归所需要的参数。
+
+Board类则包含了各种对棋盘的操作函数，包括四个move以及添加和删除函数。 Button包含了按钮的逻辑。Animate包含了几种不同的平滑动画和对应的处理方式。具体的在功能实现中进一步阐明。
+
+文件结构如下图。
 ![文件结构](https://user-images.githubusercontent.com/68833848/148180347-b3cd7ff8-bc4c-47e3-a893-67991775fc1d.png)
 
 
